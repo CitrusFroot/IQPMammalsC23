@@ -1,5 +1,6 @@
 ##### IMPORT SECTION #####
-import keras,os #Provides infrastructure for Neural Network (NN)
+import tensorflow as tf
+import keras, os #Provides infrastructure for Neural Network (NN)
 from keras.models import Sequential #specifies that our NN is sequential (one layer links to the next, etc.)
 from keras.layers import Conv2D, MaxPool2D , Flatten, Dense
 #Conv2D: images are 2D, hence 2D. Tells system to use Convolutional NNs (CNN)
@@ -11,6 +12,7 @@ from keras.preprocessing.image import ImageDataGenerator
 #Helps scale images and orient them correctly
 
 import numpy as np
+import matplotlib.pyplot as plt #for visualization
 
 ##### SETUP #####
 imageResX = 224 #set to camera specifications. best are 64, 256
@@ -18,9 +20,9 @@ imageResY = 224 #set to camera specifications. best are 64, 256
 channelCount = 3 #color channels. Consider changing based on image colors, although VGG-16 might only take in RGB
 
 trdata = ImageDataGenerator()
-traindata = trdata.flow_from_directory(directory='C:\Users\Jacob Reiss\Desktop\IQP Code\Training data',target_size=(imageResX,imageResY))
+traindata = trdata.flow_from_directory(directory='C:/Users/Jacob Reiss/Documents/GitHub/IQPMammals/Training',target_size=(imageResX,imageResY))
 tsdata = ImageDataGenerator()
-testdata = tsdata.flow_from_directory(directory='C:\Users\Jacob Reiss\Desktop\IQP Code\Test data', target_size=(imageResX,imageResY))
+testdata = tsdata.flow_from_directory(directory='C:/Users/Jacob Reiss/Documents/GitHub/IQPMammals/Testing', target_size=(imageResX,imageResY))
 
 ##### IMPLEMENTING VGG-16 MODEL #####
 
@@ -31,7 +33,7 @@ VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_
 
 VGG.trainable = False #Not sure if needed. Test with and without. Pretty sure this should be removed
 
-model = keras.sequential([VGG,
+model = keras.Sequential([VGG,
                           keras.layers.Flatten(),
                           keras.layers.Dense(units = 256, activation = 'relu'),
                           keras.layers.Dense(units = 256, activation = 'relu'),
@@ -47,4 +49,15 @@ model.compile(optimizer = 'adam', loss = keras.losses.categorical_crossentropy, 
 ##### MODEL SUMMARY SECTION #####
 model.summary() #prints out a summary table
 hist = model.fit_generator(steps_per_epoch = 100, generator = traindata, validation_data = testdata, validation_steps = 5, epochs = 5, verbose = 2) #these numbers need to be experimented with
-model.save('vggclf.h5')
+model.save('vgg16Run.h5')
+
+#The following code creates a graph of the accuracy of the modoel
+plt.plot(hist.history['accuracy'])
+plt.plot(hist.history['val_accuracy'])
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.title('VGG-16 Model Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend(['accuracy','Validation Accuracy', 'Loss', 'Validation Loss'])
+plt.show()
