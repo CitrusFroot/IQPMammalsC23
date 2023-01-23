@@ -26,28 +26,12 @@ mainDIR = 'C:/Users/Jacob Reiss/Documents/GitHub/IQPMammals/'
 trainDIR = mainDIR + 'Training/'
 testDIR = mainDIR + 'Testing/'
 
-#The following sets up the classes we are sorting mammals into
-classNames = ['jackal-front', 'jackal-side', 'jackal-back', 'fox-front', 'fox-side', 'fox-back', 'other', 'nothing']
-
-#the following for loop labels the data accordingly. WARNING: DATA MUST BE IN SPECIFICALLY NAMED DIRECTORIES OR ELSE IT WONT WORK
-for label in classNames: #for every label, assign all relevant images to this label
-    directory = os.path.join(trainDIR, label) #training data is organized in folders named after the class labels. This allows the program to enter those specific folders
-    for img in os.listdir(directory): #for every image in the above folder, convert the image to an array
-        #cv2.imread loads in a image file. This is loading in an image from the above directory
-        #cv2.IMREAD_GRAYSCALE is self explanitory- converts the image into a grayscale image.
-        imgArray = cv2.imread(os.path.join(directory, img), cv2.IMREAD_GRAYSCALE) 
-
-       
-        ###########test code. comment out when not needed.########
-        """ #loads in the images within a directory to make sure the above code actually works
-        plt.imshow(imgArray, cmap = 'gray')
-        plt.show()
-        break
-    break """
-
+"""#The following sets up the classes we are sorting mammals into
+   #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
+classNames = ['jackal-front', 'jackal-side', 'jackal-back', 'fox-front', 'fox-side', 'fox-back', 'other', 'nothing']"""
 
 trdata = ImageDataGenerator()
-traindata = trdata.flow_from_directory(directory = trainDIR, shuffle = True, target_size=(imageResX,imageResY))
+traindata = trdata.flow_from_directory(directory = trainDIR, target_size=(imageResX,imageResY), color_mode = 'grayscale', shuffle = True)
 tsdata = ImageDataGenerator()
 testdata = tsdata.flow_from_directory(directory = testDIR, shuffle = True, target_size=(imageResX,imageResY))
 
