@@ -1,6 +1,5 @@
 ##### IMPORT SECTION #####
 import tensorflow as tf
-import cv2
 import keras, os #Provides infrastructure for Neural Network (NN)
 from keras.models import Sequential #specifies that our NN is sequential (one layer links to the next, etc.)
 from keras.layers import Conv2D, MaxPool2D , Flatten, Dense
@@ -21,24 +20,22 @@ imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
 channelCount = 3 #color channels. Consider changing based on image colors, although VGG-16 might only take in RGB
 
-#Sets the directories as global variables for the sake of convienence 
-mainDIR = 'C:/Users/Jacob Reiss/Documents/GitHub/IQPMammals/'
-trainDIR = mainDIR + 'Training/'
-testDIR = mainDIR + 'Testing/'
+#Sets the directories as global variables for the sake of convienence
+mainDIR = ""
+trainDIR = mainDIR + '/Training/'
+testDIR = mainDIR + '/Testing/'
 
 """#The following sets up the classes we are sorting mammals into
-   #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
-classNames = ['jackal-front', 'jackal-side', 'jackal-back', 'fox-front', 'fox-side', 'fox-back', 'other', 'nothing']"""
+      #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
+   classNames = ['jackal-front', 'jackal-side', 'jackal-back', 'fox-front', 'fox-side', 'fox-back', 'other', 'nothing']"""
 
-trdata = ImageDataGenerator()
-traindata = trdata.flow_from_directory(directory = trainDIR, target_size=(imageResX,imageResY), color_mode = 'grayscale', shuffle = True)
-tsdata = ImageDataGenerator()
-testdata = tsdata.flow_from_directory(directory = testDIR, shuffle = True, target_size=(imageResX,imageResY))
+trainData = ImageDataGenerator().flow_from_directory(directory = trainDIR, target_size=(imageResX,imageResY), color_mode = 'grayscale', shuffle = True)
+testData = ImageDataGenerator().flow_from_directory(directory = testDIR, shuffle = True, target_size=(imageResX,imageResY))
 
 ##### IMPLEMENTING VGG-16 MODEL #####
 
 #input_shape: image dimensions + color channels
-#include_top: MUST BE FALSE! true would force the size of the architecture. Images that do not comply with size specifications will alter weights!!!
+ #include_top: MUST BE FALSE! true would force the size of the architecture. Images that do not comply with size specifications will alter weights!!!
 #weights: imagenet because it is industry standard
 #classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
 VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_top = False, weights = 'imagenet', classes = 8)
@@ -46,10 +43,10 @@ VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_
 VGG.trainable = False #Not sure if needed. Test with and without. Pretty sure this should be removed
 
 model = keras.Sequential([VGG,
-                          keras.layers.Flatten(),
-                          keras.layers.Dense(units = 256, activation = 'relu'),
-                          keras.layers.Dense(units = 256, activation = 'relu'),
-                          keras.layers.Dense(units = 2,   activation = 'softmax')])
+                         keras.layers.Flatten(),
+                         keras.layers.Dense(units = 256, activation = 'relu'),
+                         keras.layers.Dense(units = 256, activation = 'relu'),
+                         keras.layers.Dense(units = 2,   activation = 'softmax')])
 #we have 3 dense layers (standard CNN framework), the first 2 have 256 units (nodes/neurons), the last has 2
 #relu is industry standard; known for being optimal; test with Leaky ReLu for extra performance
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
@@ -60,8 +57,9 @@ model.compile(optimizer = 'adam', loss = keras.losses.categorical_crossentropy, 
 
 ##### MODEL SUMMARY SECTION #####
 model.summary() #prints out a summary table
-hist = model.fit_generator(steps_per_epoch = 100, generator = traindata, validation_data = testdata, validation_steps = 5, epochs = 5, verbose = 2) #these numbers need to be experimented with
+hist = model.fit_generator(steps_per_epoch = 100, generator = trainData, validation_data = testData, validation_steps = 5, epochs = 5, verbose = 2) #these numbers need to be experimented with
 model.save('vgg16Run.h5')
+print('Saved model to disk')
 
 #The following code creates a graph of the accuracy of the modoel
 plt.plot(hist.history['accuracy'])
