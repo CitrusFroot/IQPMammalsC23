@@ -1,5 +1,6 @@
 ##### IMPORT SECTION #####
 import tensorflow as tf
+import cv2
 import keras, os #Provides infrastructure for Neural Network (NN)
 from keras.models import Sequential #specifies that our NN is sequential (one layer links to the next, etc.)
 from keras.layers import Conv2D, MaxPool2D , Flatten, Dense
@@ -15,21 +16,48 @@ import numpy as np
 import matplotlib.pyplot as plt #for visualization
 
 ##### SETUP #####
+
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
 channelCount = 3 #color channels. Consider changing based on image colors, although VGG-16 might only take in RGB
 
+#Sets the directories as global variables for the sake of convienence 
+mainDIR = 'C:/Users/Jacob Reiss/Documents/GitHub/IQPMammals/'
+trainDIR = mainDIR + 'Training/'
+testDIR = mainDIR + 'Testing/'
+
+#The following sets up the classes we are sorting mammals into
+classNames = ['jackal-front', 'jackal-side', 'jackal-back', 'fox-front', 'fox-side', 'fox-back', 'other', 'nothing']
+
+#the following for loop labels the data accordingly. WARNING: DATA MUST BE IN SPECIFICALLY NAMED DIRECTORIES OR ELSE IT WONT WORK
+for label in classNames: #for every label, assign all relevant images to this label
+    directory = os.path.join(trainDIR, label) #training data is organized in folders named after the class labels. This allows the program to enter those specific folders
+    for img in os.listdir(directory): #for every image in the above folder, convert the image to an array
+        #cv2.imread loads in a image file. This is loading in an image from the above directory
+        #cv2.IMREAD_GRAYSCALE is self explanitory- converts the image into a grayscale image.
+        imgArray = cv2.imread(os.path.join(directory, img), cv2.IMREAD_GRAYSCALE) 
+
+       
+        ###########test code. comment out when not needed.########
+        """ #loads in the images within a directory to make sure the above code actually works
+        plt.imshow(imgArray, cmap = 'gray')
+        plt.show()
+        break
+    break """
+
+
 trdata = ImageDataGenerator()
-traindata = trdata.flow_from_directory(directory='C:/Users/Jacob Reiss/Documents/GitHub/IQPMammals/Training',target_size=(imageResX,imageResY))
+traindata = trdata.flow_from_directory(directory = trainDIR, shuffle = True, target_size=(imageResX,imageResY))
 tsdata = ImageDataGenerator()
-testdata = tsdata.flow_from_directory(directory='C:/Users/Jacob Reiss/Documents/GitHub/IQPMammals/Testing', target_size=(imageResX,imageResY))
+testdata = tsdata.flow_from_directory(directory = testDIR, shuffle = True, target_size=(imageResX,imageResY))
 
 ##### IMPLEMENTING VGG-16 MODEL #####
 
 #input_shape: image dimensions + color channels
 #include_top: MUST BE FALSE! true would force the size of the architecture. Images that do not comply with size specifications will alter weights!!!
 #weights: imagenet because it is industry standard
-VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_top = False, weights = 'imagenet')
+#classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
+VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_top = False, weights = 'imagenet', classes = 8)
 
 VGG.trainable = False #Not sure if needed. Test with and without. Pretty sure this should be removed
 
