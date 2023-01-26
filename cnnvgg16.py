@@ -14,31 +14,48 @@ from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import matplotlib.pyplot as plt #for visualization
 
+from torchvision import transforms
+import PIL
+
 ##### SETUP #####
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
-channelCount = 3 #color channels. Consider changing based on image colors, although VGG-16 might only take in RGB
+channelCount = 1 #1 = grayscale, 3 = RGB, 4 = RGBA. Use 1 for this project
 
 #Sets the directories as global variables for the sake of convienence
-mainDIR = ""
-trainDIR = mainDIR + '/Training/'
-testDIR = mainDIR + '/Testing/'
+trainDIR = 'E:\All types of images/Training Data/'
 
-"""#The following sets up the classes we are sorting mammals into
-      #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
-   classNames = ['jackal-front', 'jackal-side', 'jackal-back', 'fox-front', 'fox-side', 'fox-back', 'other', 'nothing']"""
+#The following sets up the classes we are sorting mammals into
+#This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
+#This specifies the order we want them to be organized in. so jackal-front = 0, jackal-side = 1, ... nothing = 7
+classNames = ['fox-front', 'fox-side', 'fox-back']#,'jackal-front', 'jackal-side', 'jackal-back', 'other', 'nothing']
 
-trainData = ImageDataGenerator().flow_from_directory(directory = trainDIR, target_size=(imageResX,imageResY), color_mode = 'grayscale', shuffle = True)
-testData = ImageDataGenerator().flow_from_directory(directory = testDIR, shuffle = True, target_size=(imageResX,imageResY))
+##### PREPROCESSING #####
 
+#pulls images from dataset, labels them, divides them into testing and training data, and shuffles them in memory
+trainData = tf.keras.utils.image_dataset_from_directory(directory = trainDIR, labels = 'inferred', class_names = classNames, color_mode = 'rgb', image_size = (imageResX, imageResY), shuffle = True, validation_split = 0.3, seed = 19121954, subset = 'training')
+
+#The following nested for loop is necessary because 
+#for every batch (32 images) in trainData, and for every image in each batch, do:
+#grayscale all the images
+#interpret grayscale images as RGB images
+for batch in trainData:
+    i = 0
+    for img in batch:
+        if(i % 2 == 0):
+            img = tf.image.rgb_to_grayscale(img)
+            img = tf.image.grayscale_to_rgb(img)
+        i = i + 1
+    
+#VGG-16 + ImageNet only works with RGB. the following line of code converts the grayscale color channel into RGB. The image is still gray
 ##### IMPLEMENTING VGG-16 MODEL #####
 
 #input_shape: image dimensions + color channels
  #include_top: MUST BE FALSE! true would force the size of the architecture. Images that do not comply with size specifications will alter weights!!!
-#weights: imagenet because it is industry standard
+#weights: imagenet for transfer learning
 #classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
-VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_top = False, weights = 'imagenet', classes = 8)
+VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_top = False, weights = 'imagenet', classes = 3) #classes should = 8
 
 VGG.trainable = False #Not sure if needed. Test with and without. Pretty sure this should be removed
 
@@ -46,18 +63,19 @@ model = keras.Sequential([VGG,
                          keras.layers.Flatten(),
                          keras.layers.Dense(units = 256, activation = 'relu'),
                          keras.layers.Dense(units = 256, activation = 'relu'),
-                         keras.layers.Dense(units = 2,   activation = 'softmax')])
+                         keras.layers.Dense(units = len(classNames),   activation = 'softmax')])
 #we have 3 dense layers (standard CNN framework), the first 2 have 256 units (nodes/neurons), the last has 2
 #relu is industry standard; known for being optimal; test with Leaky ReLu for extra performance
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
 
 #compile the model
-model.compile(optimizer = 'adam', loss = keras.losses.categorical_crossentropy, metrics = ['accuracy'])
+model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 #optimizer: AdaM performs best in industry. (Experiment with AdaMax. Rising in standard)
 
 ##### MODEL SUMMARY SECTION #####
+print("\n=========\nMODEL SUMMARY:\n")
 model.summary() #prints out a summary table
-hist = model.fit_generator(steps_per_epoch = 100, generator = trainData, validation_data = testData, validation_steps = 5, epochs = 5, verbose = 2) #these numbers need to be experimented with
+hist = model.fit(x = trainData, steps_per_epoch = 100, epochs = 10, validation_steps = 5, verbose = 2) #these numbers need to be experimented with 
 model.save('vgg16Run.h5')
 print('Saved model to disk')
 

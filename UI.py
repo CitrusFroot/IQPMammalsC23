@@ -8,7 +8,7 @@ def loadUI():
             [sg.Button("CANCEL")]]
 
     # Create the window
-    window = sg.Window("DAWG 0.1", layout)
+    window = sg.Window("MAMMALS UI 0.1", layout)
 
     # Create an event loop
     while True:
@@ -27,3 +27,5 @@ def loadUI():
     window.close()
 
     return filename
+
+loadUI()
