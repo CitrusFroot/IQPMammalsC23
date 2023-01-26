@@ -57,7 +57,7 @@ for batch in trainData:
 #classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
 VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), include_top = False, weights = 'imagenet', classes = 3) #classes should = 8
 
-VGG.trainable = False #Not sure if needed. Test with and without. Pretty sure this should be removed
+VGG.trainable = False 
 
 model = keras.Sequential([VGG,
                          keras.layers.Flatten(),
