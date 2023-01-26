@@ -8,20 +8,13 @@ from keras.layers import Conv2D, MaxPool2D , Flatten, Dense
 #Flatten: Converts 2D arrays into a single, continuous vector (DO NOT CHANGE!!!)
 #Dense: last 3 layers; condenses outputs from previous layers into a smaller output
 
-from keras.preprocessing.image import ImageDataGenerator
-#Helps scale images and orient them correctly
-
 import numpy as np
 import matplotlib.pyplot as plt #for visualization
-
-from torchvision import transforms
-import PIL
 
 ##### SETUP #####
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
-channelCount = 1 #1 = grayscale, 3 = RGB, 4 = RGBA. Use 1 for this project
 
 #Sets the directories as global variables for the sake of convienence
 trainDIR = 'E:\All types of images/Training Data/'
