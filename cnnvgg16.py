@@ -46,7 +46,7 @@ print("\n========================") #debugging print statements
 print(trainData)
 print('\n')
 
-batchCount = 0 #keeps track of batch number for convenience
+batchCount = 2 #keeps track of batch number for convenience
 #for every batch in trainData, and for every image in each batch, do:
 #convert grayscale images to RGB
 for batch in trainData:
@@ -90,6 +90,8 @@ VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3),
                                weights = 'imagenet', 
                                classes = len(classNames))
 
+print(VGG.weights)
+
 VGG.trainable = False 
 
 model = keras.Sequential([VGG,
@@ -102,7 +104,7 @@ model = keras.Sequential([VGG,
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
 
 #compile the model
-model.compile(optimizer = 'adam',                       #AdaM performs best in industry. (Experiment with AdaMax. Rising in standard)
+model.compile(optimizer = 'adam',                       #AdaM performs best in industry. (Experiment with AdaMax. Rising in standard) sgd?
               loss = 'sparse_categorical_crossentropy', #sparse_categorical_crossentropy because [insert reason] + code doesn't work otherwise
               metrics = ['accuracy'])
 
