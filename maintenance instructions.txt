@@ -1,0 +1,11 @@
+Issues you may run into and how to fix them (For programmers)
+
+1. Image-System incompatibility
+    our model works with grayscale images that are interpreted as RGB. The most common issue that this relates to
+    is when the photos you are analyzing are not in the correct format. To fix this, simply run the following lines on each image:
+    
+    img = tf.image.rgb_to_grayscale(img)
+    img = tf.image.grayscale_to_rgb(img)
+
+    Note that you can skip the first line if you know for certain your image is already grayscale.
+    However, it must be interpreted as RGB at the end.

@@ -1,0 +1,10 @@
+User manual for the AI:
+1. Run the program
+2. select whether or not you are labeling the most recent photo, or a batch of photos
+3. click "Browse Folders"
+    select the directory with the photo(s) to be analyzed
+4. Wait until the progress bar is complete
+5. You can opt to review all decisions the AI made, or you can view the decisions the AI was uncertain about
+6. If you viewed the decisions the AI was uncertain about, you can now correctly label the photos
+    When you are done labeling all the photos, click "Retrain"
+    Wait until the progress bar is complete, then you may exit the program or rerun it on new data
