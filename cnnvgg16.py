@@ -12,7 +12,6 @@ from keras.layers import Conv2D, MaxPool2D , Flatten, Dense, RandomCrop
 import numpy as np
 import matplotlib.pyplot as plt #for data visualization
 
-import tensorflow_datasets as tfds
 ##### SETUP #####
 
 imageResX = 224 #set to camera specifications. best are 64, 256
@@ -42,56 +41,41 @@ trainData = tf.keras.utils.image_dataset_from_directory(
                                                         validation_split = 0.3, 
                                                         seed = 19121954, 
                                                         subset = 'training')
-'''print("==================")
-print(trainData) #<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
-print("\n")
-print(trainData.element_spec)
-print("\n")
-print(trainData.element_spec[0].shape)
-trainData.element_spec[0].shape = (None, imageResX, imageResY, 3)
-print("\n")
-mutateShape = tf.TensorSpec(shape = (None, 224, 224, 3),  #the new correct shape that did not get auto-fixed
-                            dtype = trainData.element_spec[0].dtype, #keep the same as before
-                            name  = trainData.element_spec[0].name)  #keep the same as before
-trainData.element_spec[0] = mutateShape
 
-tempTupleAsList = list(trainData.element_spec) #this converts element_spec (a tuple) into a list, which is mutable
-tempTupleAsList[0] = mutateShape               #sets the shape to be mutateShape
-new_element_spec = tuple(tempTupleAsList)      #converts the list back into a tuple
-trainData.element_spec = new_element_spec
-
-
-print(trainData.element_spec)
-
-
-print("\n====================")'''
-#The following nested for loop is necessary because 
-#for every batch in trainData, and for every image in each batch, do:
-#grayscale all the images
-#interpret grayscale images as RGB images
-print("\n========================")
+print("\n========================") #debugging print statements
 print(trainData)
 print('\n')
 
-batchCount = 1
+batchCount = 0 #keeps track of batch number for convenience
+#for every batch in trainData, and for every image in each batch, do:
+#convert grayscale images to RGB
 for batch in trainData:
-    i = 0
+    i = 0 #keeps track of what image we are using. Mainly for debugging purposes; not needed to run code
+    print("Beginning next batch\n")
     print("============================")
     print("batch " + str(batchCount) + ":") #batch size always = 2, (tuple of images, tuple of labels)
     for img in batch[0]:
-        print("processing image " + str(i) + ': ...')
-        print("shape of img: " + str(img.shape))
-        img = tf.image.grayscale_to_rgb(img)
-        print("shape of img post processing: " + str(img.shape))
-        
+        print("processing image " + str(i) + ': ...') #debug print statement
+        print("shape of img: " + str(img.shape))      #^^^
+        img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
+
+        #more debug lines
+        print("shape of img post processing: " + str(img.shape) + '\n')
         i += 1
-    print("batch " + str(batchCount) + " completed.\nBeginning next batch\n================")
+    print("\nbatch " + str(batchCount) + " completed.\n")
     batchCount += 1
 
-trainData = trainData.apply(tf.data.experimental.assert_element_shape(trainData.element_spec[0].shape[0], trainData.element_spec[0].shape[1], trainData.element_spec[0].shape[2], 3))
+#creates the new shape we need. Everything stays the same, EXCEPT the number of color channels: 1 -> 3
+newShape = (trainData.element_spec[0].shape[0], #None
+            trainData.element_spec[0].shape[1], #imageResX
+            trainData.element_spec[0].shape[2], #imageResY
+            3)                                  # 3 = new color channel
+trainData.element_spec[0]._shape = newShape #assigns the new shape to the TensorSpec object in element_spec
 
+
+#yet even more debug lines
 print("\n========================")
-print(trainData)
+print(trainData) #confirms that shape was changed.
 print('\n')
     
 #VGG-16 + ImageNet only works with RGB. the following line of code converts the grayscale color channel into RGB. The image is still gray
@@ -118,15 +102,24 @@ model = keras.Sequential([VGG,
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
 
 #compile the model
-model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
-#optimizer: AdaM performs best in industry. (Experiment with AdaMax. Rising in standard)
+model.compile(optimizer = 'adam',                       #AdaM performs best in industry. (Experiment with AdaMax. Rising in standard)
+              loss = 'sparse_categorical_crossentropy', #sparse_categorical_crossentropy because [insert reason] + code doesn't work otherwise
+              metrics = ['accuracy'])
+
 
 ##### MODEL SUMMARY SECTION #####
 print("\n=========\nMODEL SUMMARY:\n")
 model.summary() #prints out a summary table
-hist = model.fit(x = trainData, steps_per_epoch = 30, epochs = 5, validation_steps = 5, verbose = 1) #these numbers need to be experimented with 
-model.save('vgg16Run.h5')
-print('Saved model to disk')
+
+#runs the model and saves it as a History object
+hist = model.fit(x = trainData,         #these numbers need to be experimented with 
+                 steps_per_epoch = 30, 
+                 epochs = 5, 
+                 validation_steps = 5, 
+                 verbose = 1)           #should be 2 in final system
+
+model.save('vgg16Run.h5') #saves the model as a readable file
+print('Saved model to disk') #confirmation message
 
 #The following code creates a graph of the accuracy of the modoel
 plt.title('VGG-16 Model Accuracy')
