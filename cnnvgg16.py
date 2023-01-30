@@ -47,29 +47,28 @@ print(trainData)
 print('\n')
 
 def applyFunc(dataset):
-     batchList = []
+     imgList = []
      imgLabels = []
      newShape = (trainData.element_spec[0].shape[1], #imageResX
                 trainData.element_spec[0].shape[2], #imageResY
                 3)  
     
      for setOfBatches in dataset:
-        batchOf = []
-        batchLabels = []
         for img in setOfBatches[0]:
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             img.set_shape(newShape)
-            batchOf.append(img)
-        batchList.append(batchOf)
-        batchLabels.append(setOfBatches[1])
-        imgLabels.append(batchLabels)
+            imgList.append(img)
+        for label in setOfBatches[1]:
+            imgLabels.append(label)
 
-     newTrainData = tf.data.Dataset.from_tensor_slices((batchList, imgLabels))
-     print("train data: ", trainData)       #<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
-     print("newTrainData: ", newTrainData)  #<TensorSliceDataset element_spec=(TensorSpec(shape=(2, 224, 224, 3), dtype=tf.float32, name=None), TensorSpec(shape=(1, 2), dtype=tf.int32, name=None))>
+     newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
+     
+     #newTrainData.batch(batch_size = batchSize)
+                                            #<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
+     print("newTrainData: ", newTrainData)  #<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
      return newTrainData
 
-trainData.apply(applyFunc)
+trainData = trainData.apply(applyFunc)
 print(trainData)
 for batch in trainData:
     for i in range(9):
