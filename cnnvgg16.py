@@ -25,7 +25,8 @@ trainDIR = "E:\All types of images/Training Data/"
 #This specifies the order we want them to be organized in. so jackal-front = 0, jackal-side = 1, ... nothing = 7
 classNames = ['fox-front', 'fox-side', 'fox-back','jackal-front', 'jackal-side', 'jackal-back', 'other', 'nothing']
 
-##### PREPROCESSING #####
+############################### PREPROCESSING ###############################
+
 #Creates a layer to randomly crop images in the dataset
 #cropLayer = tf.keras.layers.RandomCrop(imageResY, imageResX, seed = 19541912)
 
@@ -42,88 +43,39 @@ trainData = tf.keras.utils.image_dataset_from_directory(
                                                         seed = 19121954, 
                                                         subset = 'training')
 
-print("\n========================") #debugging print statements
-print(trainData)
-print('\n')
-
+#ImageNet only works with RGB.
+#The following function converts grayscale images to RGB, and fixes the dataset
 def applyFunc(dataset):
-     imgList = []
-     imgLabels = []
-     newShape = (trainData.element_spec[0].shape[1], #imageResX
-                trainData.element_spec[0].shape[2], #imageResY
-                3)  
+     imgList = [] #list of all RGB images
+     imgLabels = [] #list of labels assigned to each image
     
+    #for every setOfBatches in dataset:
+    #convert img to rgb, add it to imgList
+    #add label to imgLabels
      for setOfBatches in dataset:
-        for img in setOfBatches[0]:
+        for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
-            img.set_shape(newShape)
-            imgList.append(img)
-        for label in setOfBatches[1]:
-            imgLabels.append(label)
+            imgList.append(img) #adds to list
+        for label in setOfBatches[1]: #setOfBatches[1] = labels
+            imgLabels.append(label) #adds to list
 
+    #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
-     
-     #newTrainData.batch(batch_size = batchSize)
-                                            #<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
-     print("newTrainData: ", newTrainData)  #<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
-     return newTrainData
+     return newTrainData #returns the new dataset
 
+#calls applyFunc and updates trainData
 trainData = trainData.apply(applyFunc)
-print(trainData)
-for batch in trainData:
-    for i in range(9):
-        print(batch[0][i].shape)
 
-#ValueError: A grayscale image (shape (None,)) must be at least two-dimensional. self, img
-#ValueError: A grayscale image (shape ()) must be at least two-dimensional.      self, setOfBatches
-print(fjdskfjsdk)
-
-                                # 3 = new color channel
-
-batchCount = 1 #keeps track of batch number for convenience
-#for every batch in trainData, and for every image in each batch, do:
-#convert grayscale images to RGB
-
-imgList = []
-for setOfBatches in trainData:
-    i = 0 #keeps track of what image we are using. Mainly for debugging purposes; not needed to run code
-    print("Beginning next batch\n")
-    print("============================")
-    print("batch " + str(batchCount) + ":") #batch size always = 2, (tuple of images, tuple of labels)
+"""for setOfBatches in trainData: #uncomment this if you need to observe the images
     for img in setOfBatches[0]:
-        print("processing image " + str(i) + ': ...') #debug print statement
-        print("shape of img: " + str(img.shape))      #^^^
-        img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
-        img.set_shape = newShape
-        imgList.append(img)
-        #more debug lines
-        print("shape of img post processing: " + str(img.shape) + '\n')
-        i += 1
-    print("\nbatch " + str(batchCount) + " completed.\n")
-    batchCount += 1
+            plt.imshow(img.numpy())
+            plt.show()"""
 
-
-
-print(vkdjfksldj)
-
-
-trainData.element_spec[0]._shape = newShape #assigns the new shape to the TensorSpec object in element_spec
-
-
-#creates the new shape we need. Everything stays the same, EXCEPT the number of color channels: 1 -> 3
-
-
-#yet even more debug lines
-print("\n========================")
-print(trainData) #confirms that shape was changed.
-print('\n')
-    
-#VGG-16 + ImageNet only works with RGB. the following line of code converts the grayscale color channel into RGB. The image is still gray
-##### IMPLEMENTING VGG-16 MODEL #####
-
+############################### IMPLEMENTING VGG-16 MODEL ###############################
+#TODO explain weights, explain include_top
 #input_shape: image dimensions + color channels
- #include_top: MUST BE FALSE! true would force the size of the architecture. Images that do not comply with size specifications will alter weights!!!
-#weights: imagenet for transfer learning
+#include_top: (EXPLAIN WHY BETTER) MUST BE FALSE! true would force the size of the architecture. Images that do not comply with size specifications will alter weights!!!
+#weights: 'imagenet' for transfer learning (VERIFY)
 #classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
 VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), 
                                include_top = False, 
@@ -170,5 +122,4 @@ plt.ylabel('Accuracy')
 plt.plot(hist.history['accuracy'])
 plt.plot(hist.history['loss'])
 plt.legend(['Accuracy', 'Loss'])
-#plt.plot(hist.history['val_loss'])
 plt.show()
