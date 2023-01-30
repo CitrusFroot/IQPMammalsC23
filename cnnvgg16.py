@@ -46,6 +46,17 @@ print("\n========================") #debugging print statements
 print(trainData)
 print('\n')
 
+def mapFunc(self, tensorObject):
+    print(trainData)
+    print(tensorObject.get_shape())
+    print(setOfBatches)
+    setOfBatches[0] = tf.image.grayscale_to_rgb(setOfBatches[0])
+
+trainData.map(mapFunc)
+
+#ValueError: A grayscale image (shape (None,)) must be at least two-dimensional. self, img
+#ValueError: A grayscale image (shape ()) must be at least two-dimensional.      self, setOfBatches
+print(fjdskfjsdk)
 
 newShape = (trainData.element_spec[0].shape[0], #None
             trainData.element_spec[0].shape[1], #imageResX
@@ -55,26 +66,24 @@ newShape = (trainData.element_spec[0].shape[0], #None
 batchCount = 1 #keeps track of batch number for convenience
 #for every batch in trainData, and for every image in each batch, do:
 #convert grayscale images to RGB
-for batch in trainData:
+
+imgList = []
+for setOfBatches in trainData:
     i = 0 #keeps track of what image we are using. Mainly for debugging purposes; not needed to run code
     print("Beginning next batch\n")
     print("============================")
     print("batch " + str(batchCount) + ":") #batch size always = 2, (tuple of images, tuple of labels)
-    for img in batch[0]:
+    for img in setOfBatches[0]:
         print("processing image " + str(i) + ': ...') #debug print statement
         print("shape of img: " + str(img.shape))      #^^^
         img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
         img.set_shape = newShape
-
+        imgList.append(img)
         #more debug lines
         print("shape of img post processing: " + str(img.shape) + '\n')
         i += 1
     print("\nbatch " + str(batchCount) + " completed.\n")
     batchCount += 1
-    b = list(batch)
-    b[0] = batch[0]
-    c = tuple(b)
-    batch = c
 
 for batch in trainData:
     for img in batch[0]:
