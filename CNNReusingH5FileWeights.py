@@ -12,6 +12,8 @@ from keras.layers import Conv2D, MaxPool2D , Flatten, Dense, RandomCrop"""
 import numpy as np
 import matplotlib.pyplot as plt #for data visualization
 
+from keras.models import load_model
+
 ##### SETUP #####
 
 imageResX = 224 #set to camera specifications. best are 64, 256
@@ -80,20 +82,8 @@ trainData = trainData.apply(applyFunc)
 #include_top: (EXPLAIN WHY BETTER) MUST BE FALSE! true would force the size of the architecture. Images that do not comply with size specifications will alter weights!!!
 #weights: 'imagenet' for transfer learning (VERIFY)
 #classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
-VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), 
-                               include_top = False, 
-                               weights = 'imagenet', 
-                               classes = numSubdirectories)
+model = load_model('vgg16Run.h5')
 
-print(VGG.weights)
-
-VGG.trainable = False 
-
-model = keras.Sequential([VGG,
-                         keras.layers.Flatten(),
-                         keras.layers.Dense(units = 256, activation = 'relu'),
-                         keras.layers.Dense(units = 256, activation = 'relu'),
-                         keras.layers.Dense(units = numSubdirectories,   activation = 'softmax')])
 #we have 3 dense layers (standard CNN framework), the first 2 have 256 units (nodes/neurons), the last has 2
 #relu is industry standard; known for being optimal; test with Leaky ReLu for extra performance
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
