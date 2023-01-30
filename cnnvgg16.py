@@ -18,7 +18,7 @@ imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
 batchSize = 2   #set to power of 2 for optimal usage
 #Sets the directories as global variables for the sake of convienence
-trainDIR = 'E:\All types of images/Training Data/'
+trainDIR = "E:\All types of images/Training Data/"
 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
@@ -46,7 +46,13 @@ print("\n========================") #debugging print statements
 print(trainData)
 print('\n')
 
-batchCount = 2 #keeps track of batch number for convenience
+
+newShape = (trainData.element_spec[0].shape[0], #None
+            trainData.element_spec[0].shape[1], #imageResX
+            trainData.element_spec[0].shape[2], #imageResY
+            3)                                  # 3 = new color channel
+
+batchCount = 1 #keeps track of batch number for convenience
 #for every batch in trainData, and for every image in each batch, do:
 #convert grayscale images to RGB
 for batch in trainData:
@@ -58,19 +64,30 @@ for batch in trainData:
         print("processing image " + str(i) + ': ...') #debug print statement
         print("shape of img: " + str(img.shape))      #^^^
         img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
+        img.set_shape = newShape
 
         #more debug lines
         print("shape of img post processing: " + str(img.shape) + '\n')
         i += 1
     print("\nbatch " + str(batchCount) + " completed.\n")
     batchCount += 1
+    b = list(batch)
+    b[0] = batch[0]
+    c = tuple(b)
+    batch = c
+
+for batch in trainData:
+    for img in batch[0]:
+        print(img)
+        print(img.shape)
+
+print(vkdjfksldj)
+
+
+trainData.element_spec[0]._shape = newShape #assigns the new shape to the TensorSpec object in element_spec
+
 
 #creates the new shape we need. Everything stays the same, EXCEPT the number of color channels: 1 -> 3
-newShape = (trainData.element_spec[0].shape[0], #None
-            trainData.element_spec[0].shape[1], #imageResX
-            trainData.element_spec[0].shape[2], #imageResY
-            3)                                  # 3 = new color channel
-trainData.element_spec[0]._shape = newShape #assigns the new shape to the TensorSpec object in element_spec
 
 
 #yet even more debug lines
