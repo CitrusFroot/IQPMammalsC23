@@ -18,12 +18,16 @@ imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
 batchSize = 2   #set to power of 2 for optimal usage
 #Sets the directories as global variables for the sake of convienence
-trainDIR = "E:\All types of images/Training Data/"
+trainDIR = "./Training Data/"
+
+# the number of subdirectories within the "Training Data" directory
+numSubdirectories = len(list(os.walk('./Training Data/')))
 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
 #This specifies the order we want them to be organized in. so jackal-front = 0, jackal-side = 1, ... nothing = 7
-classNames = ['fox-front', 'fox-side', 'fox-back','jackal-front', 'jackal-side', 'jackal-back', 'other', 'nothing']
+
+# classNames = ['fox-front', 'fox-side', 'fox-back','jackal-front', 'jackal-side', 'jackal-back', 'other', 'nothing']
 
 ############################### PREPROCESSING ###############################
 
@@ -34,7 +38,6 @@ classNames = ['fox-front', 'fox-side', 'fox-back','jackal-front', 'jackal-side',
 trainData = tf.keras.utils.image_dataset_from_directory(
                                                         directory = trainDIR,
                                                         labels = 'inferred', 
-                                                        class_names = classNames, 
                                                         color_mode = 'grayscale', 
                                                         batch_size = batchSize, 
                                                         image_size = (imageResX, imageResY), 
@@ -80,7 +83,7 @@ trainData = trainData.apply(applyFunc)
 VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), 
                                include_top = False, 
                                weights = 'imagenet', 
-                               classes = len(classNames))
+                               classes = numSubdirectories)
 
 print(VGG.weights)
 
@@ -90,7 +93,7 @@ model = keras.Sequential([VGG,
                          keras.layers.Flatten(),
                          keras.layers.Dense(units = 256, activation = 'relu'),
                          keras.layers.Dense(units = 256, activation = 'relu'),
-                         keras.layers.Dense(units = len(classNames),   activation = 'softmax')])
+                         keras.layers.Dense(units = numSubdirectories,   activation = 'softmax')])
 #we have 3 dense layers (standard CNN framework), the first 2 have 256 units (nodes/neurons), the last has 2
 #relu is industry standard; known for being optimal; test with Leaky ReLu for extra performance
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
