@@ -1,8 +1,8 @@
 ##### IMPORT SECTION #####
 import tensorflow as tf
 import keras, os #Provides infrastructure for Neural Network (NN)
-from keras.models import Sequential #specifies that our NN is sequential (one layer links to the next, etc.)
-from keras.layers import Conv2D, MaxPool2D , Flatten, Dense, RandomCrop
+"""from keras.models import Sequential #specifies that our NN is sequential (one layer links to the next, etc.)
+from keras.layers import Conv2D, MaxPool2D , Flatten, Dense, RandomCrop"""
 #Conv2D: images are 2D, hence 2D. Tells system to use Convolutional NNs (CNN)
 #MaxPool2D: Max Pooling has been found to be the better option for pooling with image identification (try avg at least once jic)
 #Flatten: Converts 2D arrays into a single, continuous vector (DO NOT CHANGE!!!)
@@ -46,22 +46,40 @@ print("\n========================") #debugging print statements
 print(trainData)
 print('\n')
 
-def mapFunc(self, tensorObject):
-    print(trainData)
-    print(tensorObject.get_shape())
-    print(setOfBatches)
-    setOfBatches[0] = tf.image.grayscale_to_rgb(setOfBatches[0])
+def applyFunc(dataset):
+     batchList = []
+     imgLabels = []
+     newShape = (trainData.element_spec[0].shape[1], #imageResX
+                trainData.element_spec[0].shape[2], #imageResY
+                3)  
+    
+     for setOfBatches in dataset:
+        batchOf = []
+        batchLabels = []
+        for img in setOfBatches[0]:
+            img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
+            img.set_shape(newShape)
+            batchOf.append(img)
+        batchList.append(batchOf)
+        batchLabels.append(setOfBatches[1])
+        imgLabels.append(batchLabels)
 
-trainData.map(mapFunc)
+     newTrainData = tf.data.Dataset.from_tensor_slices((batchList, imgLabels))
+     print("train data: ", trainData)       #<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
+     print("newTrainData: ", newTrainData)  #<TensorSliceDataset element_spec=(TensorSpec(shape=(2, 224, 224, 3), dtype=tf.float32, name=None), TensorSpec(shape=(1, 2), dtype=tf.int32, name=None))>
+     return newTrainData
+
+trainData.apply(applyFunc)
+print(trainData)
+for batch in trainData:
+    for i in range(9):
+        print(batch[0][i].shape)
 
 #ValueError: A grayscale image (shape (None,)) must be at least two-dimensional. self, img
 #ValueError: A grayscale image (shape ()) must be at least two-dimensional.      self, setOfBatches
 print(fjdskfjsdk)
 
-newShape = (trainData.element_spec[0].shape[0], #None
-            trainData.element_spec[0].shape[1], #imageResX
-            trainData.element_spec[0].shape[2], #imageResY
-            3)                                  # 3 = new color channel
+                                # 3 = new color channel
 
 batchCount = 1 #keeps track of batch number for convenience
 #for every batch in trainData, and for every image in each batch, do:
@@ -85,10 +103,7 @@ for setOfBatches in trainData:
     print("\nbatch " + str(batchCount) + " completed.\n")
     batchCount += 1
 
-for batch in trainData:
-    for img in batch[0]:
-        print(img)
-        print(img.shape)
+
 
 print(vkdjfksldj)
 
