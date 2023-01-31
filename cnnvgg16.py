@@ -1,13 +1,10 @@
 ##### IMPORT SECTION #####
 import tensorflow as tf
 import keras, os #Provides infrastructure for Neural Network (NN)
-"""from keras.models import Sequential #specifies that our NN is sequential (one layer links to the next, etc.)
-from keras.layers import Conv2D, MaxPool2D , Flatten, Dense, RandomCrop"""
 #Conv2D: images are 2D, hence 2D. Tells system to use Convolutional NNs (CNN)
 #MaxPool2D: Max Pooling has been found to be the better option for pooling with image identification (try avg at least once jic)
 #Flatten: Converts 2D arrays into a single, continuous vector (DO NOT CHANGE!!!)
 #Dense: last 3 layers; condenses outputs from previous layers into a smaller output
-#RandomCrop allows us to hone our data to focus on specific aspects of an image
 
 import numpy as np
 import matplotlib.pyplot as plt #for data visualization
@@ -17,11 +14,13 @@ import matplotlib.pyplot as plt #for data visualization
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
 batchSize = 2   #set to power of 2 for optimal usage
+valSplit = 0.3  #percent of data that is saved for testing
+
 #Sets the directories as global variables for the sake of convienence
 trainDIR = "./Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
-numSubdirectories = len(list(os.walk('./Training Data/')))
+numSubdirectories = len(list(os.walk(trainDIR)))
 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
@@ -42,7 +41,7 @@ trainData = tf.keras.utils.image_dataset_from_directory(
                                                         batch_size = batchSize, 
                                                         image_size = (imageResX, imageResY), 
                                                         shuffle = True, 
-                                                        validation_split = 0.3, 
+                                                        validation_split = valSplit, 
                                                         seed = 19121954, 
                                                         subset = 'training')
 
