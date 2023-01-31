@@ -69,7 +69,6 @@ def applyFunc(dataset):
      return newTrainData #returns the new dataset
 
 #calls applyFunc and updates trainData
-print(trainData) 
 trainTData = trainData[0]
 trainVData = trainData[1]
 
@@ -94,7 +93,7 @@ trainData = [trainTData, trainVData]
 #weights: 'imagenet' for transfer learning (VERIFY)
 #classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
 VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), 
-                               include_top = False, 
+                               include_top = False,
                                weights = 'imagenet', 
                                classes = numSubdirectories)
 
@@ -128,7 +127,7 @@ hist = model.fit(x = trainData[0],         #these numbers need to be experimente
 
 model.save('vgg16Run.h5') #saves the model as a readable file
 print('Saved model to disk') #confirmation message
-
+print(hist.history.keys())
 #The following code creates a graph of the accuracy of the modoel
 plt.title('VGG-16 Model Accuracy')
 plt.xlabel('Epoch')
