@@ -1,0 +1,3 @@
+#Files ignored by git
+*.h5
+*.jpg
