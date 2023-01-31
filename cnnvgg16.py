@@ -69,8 +69,18 @@ def applyFunc(dataset):
      return newTrainData #returns the new dataset
 
 #calls applyFunc and updates trainData
-trainData = trainData[0].apply(applyFunc) #applies function to training dataset
-trainData = trainData[1].apply(applyFunc) #applies function to validation dataset
+print(trainData) 
+trainTData = trainData[0]
+trainVData = trainData[1]
+
+trainTData = trainTData.apply(applyFunc)
+trainVData = trainVData.apply(applyFunc)
+
+trainData = [trainTData, trainVData]
+'''
+[<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>,
+ <BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>]  
+'''
 
 """for setOfBatches in trainData: #uncomment this if you need to observe the images
     for img in setOfBatches[0]:
@@ -87,8 +97,6 @@ VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3),
                                include_top = False, 
                                weights = 'imagenet', 
                                classes = numSubdirectories)
-
-print(VGG.weights)
 
 VGG.trainable = False 
 
@@ -112,7 +120,7 @@ print("\n=========\nMODEL SUMMARY:\n")
 model.summary() #prints out a summary table
 
 #runs the model and saves it as a History object
-hist = model.fit(x = trainData,         #these numbers need to be experimented with 
+hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
                  steps_per_epoch = 30, 
                  epochs = 5, 
                  validation_steps = 5, 
