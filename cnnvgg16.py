@@ -17,7 +17,7 @@ batchSize = 2   #set to power of 2 for optimal usage
 valSplit = 0.3  #percent of data that is saved for testing
 
 #Sets the directories as global variables for the sake of convienence
-trainDIR = "./Training Data/"
+trainDIR = "E:\All types of images/Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
 numSubdirectories = len(list(os.walk(trainDIR)))
@@ -43,7 +43,7 @@ trainData = tf.keras.utils.image_dataset_from_directory(
                                                         shuffle = True, 
                                                         validation_split = valSplit, 
                                                         seed = 19121954, 
-                                                        subset = 'training')
+                                                        subset = 'both')
 
 #ImageNet only works with RGB.
 #The following function converts grayscale images to RGB, and fixes the dataset
@@ -51,22 +51,26 @@ def applyFunc(dataset):
      imgList = [] #list of all RGB images
      imgLabels = [] #list of labels assigned to each image
     
-    #for every setOfBatches in dataset:
-    #convert img to rgb, add it to imgList
-    #add label to imgLabels
+     #for every setOfBatches in dataset:
+     #convert img to rgb, add it to imgList
+     #add label to imgLabels
+     print('=========== PREPROCESSING: ===========\n')
      for setOfBatches in dataset:
+        print('processing batch: ...')
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
-
+     print("=========== PREPROCESSING COMPLETE ===========")
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
+     print('new dataset created. tasks complete! \n===========')
      return newTrainData #returns the new dataset
 
 #calls applyFunc and updates trainData
-trainData = trainData.apply(applyFunc)
+trainData = trainData[0].apply(applyFunc) #applies function to training dataset
+trainData = trainData[1].apply(applyFunc) #applies function to validation dataset
 
 """for setOfBatches in trainData: #uncomment this if you need to observe the images
     for img in setOfBatches[0]:
