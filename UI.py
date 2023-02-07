@@ -11,21 +11,16 @@ def loadUI():
     window = sg.Window("MAMMALS UI 0.1", layout)
 
     # Create an event loop
-    while True:
+    isSelected = False
+    while not isSelected:
         event, values = window.read()
         # End program if user closes window or
         # presses the OK button
         if  event == sg.WIN_CLOSED or event == "CANCEL":
-            break
+            isSelected = True
         elif event == "Browse Files":
             filename = fd.askdirectory()
-            #TODO: call CNN to run this application
-            print(filename)
-            break
-
-
+            isSelected = True
     window.close()
 
     return filename
-
-loadUI()
