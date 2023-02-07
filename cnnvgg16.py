@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt #for data visualization
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
-batchSize = 16   #set to power of 2 for optimal usage
+batchSize = 8   #set to power of 2 for optimal usage
 valSplit = 0.3  #percent of data that is saved for testing
 #Sets the directories as global variables for the sake of convienence
 trainDIR = "E:\All types of images\Training Data"
@@ -54,13 +54,14 @@ def applyFunc(dataset):
     #convert img to rgb, add it to imgList
     #add label to imgLabels
      batchCount = 1
+     print('========\n', len(dataset), 'batches to process. Beginning ...')
      for setOfBatches in dataset:
-        print('processing batch: ...')
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
-        for label in setOfBatches[1]: #setOfBatches[1] = labels
-            imgLabels.append(label) #adds to list
+        if(len(setOfBatches) > 1):
+            for label in setOfBatches[1]: #setOfBatches[1] = labels
+                imgLabels.append(label) #adds to list
         print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
         batchCount += 1
 
@@ -120,7 +121,7 @@ print("\n=========\nMODEL SUMMARY:\n")
 model.summary() #prints out a summary table
 
 #runs the model and saves it as a History object
-es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss')
+es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
                  steps_per_epoch = 10, 
                  epochs = 5, 
@@ -131,14 +132,20 @@ hist = model.fit(x = trainData[0],         #these numbers need to be experimente
 
 model.save('vgg16Run.h5') #saves the model as a readable file
 print('Saved model to disk') #confirmation message
-print(hist.history.keys())
+
+print(predictions)
+
 #The following code creates a graph of the accuracy of the modoel
+
 plt.title('VGG-16 Model Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.plot(hist.history['accuracy'])
-plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_accuracy'])
+plt.legend(['Accuracy', 'Validation Accuracy'])
+plt.show()
+
+plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
-plt.legend(['Accuracy', 'Loss', 'Validation Accuracy', 'Validation Loss'])
+plt.legend(['Loss', 'Validation Loss'])
 plt.show()
