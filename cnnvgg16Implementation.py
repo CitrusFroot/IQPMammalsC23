@@ -22,11 +22,15 @@ def runModel(mainDIR):
 
     for images in os.scandir(mainDIR):
         if  not images.is_file():
-            print()
+            print('oop. directory')
         
         else:
+            print('woot! found a file')
             fileType = images.name.split('.')[1]
-            if fileType == 'png' or fileType == 'jpg' or fileType == 'bmp' or fileType == 'gif':
-                arr = cnn.predict(img_to_array(images))
+            if fileType == 'PNG' or fileType == 'JPG' or fileType == 'BMP' or fileType == 'GIF':
+                print('found an image!!!')
+                
+                arr = cnn.predict(img_to_array(os.mainDIR + '/' + images.name))
+                print('pErDicTeD')
                 print(arr)
         

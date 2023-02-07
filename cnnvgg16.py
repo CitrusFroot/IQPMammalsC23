@@ -120,9 +120,9 @@ model.summary() #prints out a summary table
 
 #runs the model and saves it as a History object
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
-                 steps_per_epoch = 30, 
+                 steps_per_epoch = 10, 
                  epochs = 5, 
-                 validation_steps = 5, 
+                 validation_steps = 10, 
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
