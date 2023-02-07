@@ -16,12 +16,12 @@ import matplotlib.pyplot as plt #for data visualization
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
-batchSize = 2   #set to power of 2 for optimal usage
+batchSize = 16   #set to power of 2 for optimal usage
 #Sets the directories as global variables for the sake of convienence
-trainDIR = "./Training Data/"
+trainDIR = "E:\All types of images\Training Data"
 
 # the number of subdirectories within the "Training Data" directory
-numSubdirectories = len(list(os.walk('./Training Data/')))
+numSubdirectories = len(list(os.walk(trainDIR)))
 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
@@ -55,12 +55,15 @@ def applyFunc(dataset):
     #for every setOfBatches in dataset:
     #convert img to rgb, add it to imgList
     #add label to imgLabels
+     batchCount = 1
      for setOfBatches in dataset:
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
+        print('batch ', batchCount, 'completed. '(round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+        batchCount += 1
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
@@ -85,8 +88,6 @@ VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3),
                                weights = 'imagenet', 
                                classes = numSubdirectories)
 
-print(VGG.weights)
-
 VGG.trainable = False 
 
 model = keras.Sequential([VGG,
@@ -109,10 +110,14 @@ print("\n=========\nMODEL SUMMARY:\n")
 model.summary() #prints out a summary table
 
 #runs the model and saves it as a History object
+#early stopping paramaters
+es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss')
 hist = model.fit(x = trainData,         #these numbers need to be experimented with 
-                 steps_per_epoch = 30, 
-                 epochs = 5, 
-                 validation_steps = 5, 
+                 steps_per_epoch = 10, 
+                 epochs = 5,
+                 callbacks = es1,
+                 validation_data = 
+                 validation_steps = 10, 
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
@@ -124,5 +129,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.plot(hist.history['accuracy'])
 plt.plot(hist.history['loss'])
-plt.legend(['Accuracy', 'Loss'])
+plt.plot(hist.history['val_accuracy'])
+plt.plot(hist.history['val_loss'])
+plt.legend(['Accuracy', 'Loss', 'Validation Accuracy', 'Validation Loss'])
 plt.show()
