@@ -124,7 +124,7 @@ model.summary() #prints out a summary table
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
                  steps_per_epoch = 10, 
-                 epochs = 5, 
+                 epochs = 15, 
                  callbacks = es1,
                  validation_data = trainData[1],
                  validation_steps = 10, 
@@ -132,8 +132,6 @@ hist = model.fit(x = trainData[0],         #these numbers need to be experimente
 
 model.save('vgg16Run.h5') #saves the model as a readable file
 print('Saved model to disk') #confirmation message
-
-print(predictions)
 
 #The following code creates a graph of the accuracy of the modoel
 
