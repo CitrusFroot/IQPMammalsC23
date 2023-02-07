@@ -61,7 +61,7 @@ def applyFunc(dataset):
             imgList.append(img) #adds to list
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
-        print('batch ', batchCount, 'completed. '(round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
         batchCount += 1
 
     #creates a new BatchDataset from imgList and imgLabels
