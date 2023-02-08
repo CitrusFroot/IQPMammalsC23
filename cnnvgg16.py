@@ -13,14 +13,16 @@ import matplotlib.pyplot as plt #for data visualization
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
+
 batchSize = 8   #set to power of 2 for optimal usage
 valSplit = 0.3  #percent of data that is saved for testing
 
+
 #Sets the directories as global variables for the sake of convienence
-trainDIR = "E:\All types of images\Training Data"
+trainDIR = "./Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
-numSubdirectories = len(list(os.walk(trainDIR)))
+numSubdirectories = len(list(os.walk('./Training Data/')))
 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
@@ -56,6 +58,7 @@ def applyFunc(dataset):
     #add label to imgLabels
      batchCount = 1
      print('========\n', len(dataset), 'batches to process. Beginning ...')
+
      for setOfBatches in dataset:
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
@@ -63,8 +66,6 @@ def applyFunc(dataset):
 
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
-        print('batch ', batchCount, 'completed. '(round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
-        batchCount += 1
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
@@ -99,6 +100,8 @@ VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3),
                                include_top = False,
                                weights = 'imagenet', 
                                classes = numSubdirectories)
+
+print(VGG.weights)
 
 VGG.trainable = False 
 
@@ -151,3 +154,4 @@ plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
 plt.legend(['Loss', 'Validation Loss'])
 plt.show()
+
