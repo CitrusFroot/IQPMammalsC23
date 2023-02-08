@@ -21,7 +21,7 @@ trainDIR = "E:\All types of images/Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
 numSubdirectories = len(list(os.walk(trainDIR)))
-
+ 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
 #This specifies the order we want them to be organized in. so jackal-front = 0, jackal-side = 1, ... nothing = 7
