@@ -15,6 +15,7 @@ imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
 batchSize = 8   #set to power of 2 for optimal usage
 valSplit = 0.3  #percent of data that is saved for testing
+
 #Sets the directories as global variables for the sake of convienence
 trainDIR = "E:\All types of images\Training Data"
 
@@ -59,10 +60,10 @@ def applyFunc(dataset):
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
-        if(len(setOfBatches) > 1):
-            for label in setOfBatches[1]: #setOfBatches[1] = labels
-                imgLabels.append(label) #adds to list
-        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+
+        for label in setOfBatches[1]: #setOfBatches[1] = labels
+            imgLabels.append(label) #adds to list
+        print('batch ', batchCount, 'completed. '(round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
         batchCount += 1
 
     #creates a new BatchDataset from imgList and imgLabels
@@ -143,6 +144,9 @@ plt.plot(hist.history['val_accuracy'])
 plt.legend(['Accuracy', 'Validation Accuracy'])
 plt.show()
 
+plt.title('VGG-16 Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
 plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
 plt.legend(['Loss', 'Validation Loss'])
