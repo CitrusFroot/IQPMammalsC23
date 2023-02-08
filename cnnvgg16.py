@@ -1,13 +1,10 @@
 ##### IMPORT SECTION #####
 import tensorflow as tf
 import keras, os #Provides infrastructure for Neural Network (NN)
-"""from keras.models import Sequential #specifies that our NN is sequential (one layer links to the next, etc.)
-from keras.layers import Conv2D, MaxPool2D , Flatten, Dense, RandomCrop"""
 #Conv2D: images are 2D, hence 2D. Tells system to use Convolutional NNs (CNN)
 #MaxPool2D: Max Pooling has been found to be the better option for pooling with image identification (try avg at least once jic)
 #Flatten: Converts 2D arrays into a single, continuous vector (DO NOT CHANGE!!!)
 #Dense: last 3 layers; condenses outputs from previous layers into a smaller output
-#RandomCrop allows us to hone our data to focus on specific aspects of an image
 
 import numpy as np
 import matplotlib.pyplot as plt #for data visualization
@@ -16,7 +13,11 @@ import matplotlib.pyplot as plt #for data visualization
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
-batchSize = 2   #set to power of 2 for optimal usage
+
+batchSize = 8   #set to power of 2 for optimal usage
+valSplit = 0.3  #percent of data that is saved for testing
+
+
 #Sets the directories as global variables for the sake of convienence
 trainDIR = "./Training Data/"
 
@@ -42,9 +43,9 @@ trainData = tf.keras.utils.image_dataset_from_directory(
                                                         batch_size = batchSize, 
                                                         image_size = (imageResX, imageResY), 
                                                         shuffle = True, 
-                                                        validation_split = 0.3, 
+                                                        validation_split = valSplit, 
                                                         seed = 19121954, 
-                                                        subset = 'training')
+                                                        subset = 'both')
 
 #ImageNet only works with RGB.
 #The following function converts grayscale images to RGB, and fixes the dataset
@@ -55,19 +56,34 @@ def applyFunc(dataset):
     #for every setOfBatches in dataset:
     #convert img to rgb, add it to imgList
     #add label to imgLabels
+     batchCount = 1
+     print('========\n', len(dataset), 'batches to process. Beginning ...')
+
      for setOfBatches in dataset:
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
+
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
+     print('new dataset created. tasks complete! \n===========')
      return newTrainData #returns the new dataset
 
 #calls applyFunc and updates trainData
-trainData = trainData.apply(applyFunc)
+trainTData = trainData[0]
+trainVData = trainData[1]
+
+trainTData = trainTData.apply(applyFunc)
+trainVData = trainVData.apply(applyFunc)
+
+trainData = [trainTData, trainVData]
+'''
+[<BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>,
+ <BatchDataset element_spec=(TensorSpec(shape=(None, 224, 224, 1), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>]  
+'''
 
 """for setOfBatches in trainData: #uncomment this if you need to observe the images
     for img in setOfBatches[0]:
@@ -81,7 +97,7 @@ trainData = trainData.apply(applyFunc)
 #weights: 'imagenet' for transfer learning (VERIFY)
 #classes: 8 classes; [jackal, fox] front, side, back, other, nothing. Uncertainty is decided by confidence level
 VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3), 
-                               include_top = False, 
+                               include_top = False,
                                weights = 'imagenet', 
                                classes = numSubdirectories)
 
@@ -109,20 +125,33 @@ print("\n=========\nMODEL SUMMARY:\n")
 model.summary() #prints out a summary table
 
 #runs the model and saves it as a History object
-hist = model.fit(x = trainData,         #these numbers need to be experimented with 
+es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
+hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
                  steps_per_epoch = 30, 
-                 epochs = 5, 
-                 validation_steps = 5, 
+                 epochs = 15,
+                 callbacks = es1,
+                 validation_data = trainData[1],
+                 validation_steps = 10, 
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
 print('Saved model to disk') #confirmation message
 
 #The following code creates a graph of the accuracy of the modoel
+
 plt.title('VGG-16 Model Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.plot(hist.history['accuracy'])
-plt.plot(hist.history['loss'])
-plt.legend(['Accuracy', 'Loss'])
+plt.plot(hist.history['val_accuracy'])
+plt.legend(['Accuracy', 'Validation Accuracy'])
 plt.show()
+
+plt.title('VGG-16 Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.legend(['Loss', 'Validation Loss'])
+plt.show()
+
