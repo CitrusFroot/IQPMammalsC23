@@ -123,8 +123,8 @@ model.summary() #prints out a summary table
 #runs the model and saves it as a History object
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
-                 steps_per_epoch = 10, 
-                 epochs = 15, 
+                 steps_per_epoch = 30, 
+                 epochs = 15,
                  callbacks = es1,
                  validation_data = trainData[1],
                  validation_steps = 10, 
