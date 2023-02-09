@@ -133,7 +133,10 @@ model.summary() #prints out a summary table
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1b7e613 (CSV is either created or appended to; labels are decoded; in process of writing rows to CSV)
                  steps_per_epoch = 30, 
                  epochs = 15,
                  callbacks = es1,
