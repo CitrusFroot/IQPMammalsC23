@@ -19,10 +19,11 @@ valSplit = 0.3  #percent of data that is saved for testing
 
 
 #Sets the directories as global variables for the sake of convienence
+#trainDIR = "D:\\All types of images/Training Data/"
 trainDIR = "./Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
-numSubdirectories = len(list(os.walk('./Training Data/')))
+numSubdirectories = len(list(os.walk(trainDIR)))
 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
@@ -115,7 +116,8 @@ model = keras.Sequential([VGG,
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
 
 #compile the model
-model.compile(optimizer = 'adam',                       #AdaM performs best in industry. (Experiment with AdaMax. Rising in standard) sgd?
+#Other optimizers: adagrad (keep testing), rmsprop (mid), adadelta (bad), nadam (mid), ftrl 
+model.compile(optimizer = 'adagrad',                       #AdaM performs best in industry. (Experiment with AdaMax (good). Rising in standard) sgd more stable but worse values
               loss = 'sparse_categorical_crossentropy', #sparse_categorical_crossentropy because [insert reason] + code doesn't work otherwise
               metrics = ['accuracy'])
 
