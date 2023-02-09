@@ -61,10 +61,15 @@ def applyFunc(dataset):
 
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
+<<<<<<< HEAD
 
         print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.') #more debug text
         batchCount += 1 #even more debug stuff
      print("=========== PREPROCESSING COMPLETE ===========")
+=======
+        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+        batchCount += 1
+>>>>>>> f4a168b (finished experimentation with steps per epoch (see results). currently set up to experiment with validation steps)
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
@@ -134,6 +139,7 @@ model.summary() #prints out a summary table of the model
 #################################
 
 #runs the model and saves it as a History object
+<<<<<<< HEAD
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if validation loss doesn't improve after 3 epochs
 hist = model.fit(x = trainData[0],                 #the training data
                  steps_per_epoch = None,           #None defaults to the number of batches
@@ -142,6 +148,16 @@ hist = model.fit(x = trainData[0],                 #the training data
                  validation_data = trainData[1],   #the validation data
                  validation_steps = None,          #None defaults to the number of batches
                  verbose = 1)                      #1 shows progress bar. Helps gauge how much is done
+=======
+es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
+hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
+                 steps_per_epoch = None, 
+                 epochs = 15,
+                 callbacks = es1,
+                 validation_data = trainData[1],
+                 validation_steps = None, 
+                 verbose = 1)           #should be 2 in final system
+>>>>>>> f4a168b (finished experimentation with steps per epoch (see results). currently set up to experiment with validation steps)
 
 model.save('vgg16Run.h5') #saves the model as a readable file
 print('Saved model to disk') #confirmation message
