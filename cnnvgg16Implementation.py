@@ -7,26 +7,44 @@ from PIL.ExifTags import TAGS
 
 cnn = load_model('vgg16Run.h5') #loads the saved model
 
+#gets the date and time from an image's metadata
+#aTuple: a tuple of information; (imageName, prediction, probability, mainDIR)
+#returns: a list of size 2 consisting of the date and the time separately
 def getDateAndTime(aTuple):
-    dirToImage = aTuple[3] + '/' + aTuple[0]
+    dirToImage = aTuple[3] + '/' + aTuple[0] #gets the full directory to the image
     
-    image = Image.open(dirToImage)
-    metadata = image.getexif()
-    value = ""
+    image = Image.open(dirToImage) #opens the image for reading
+    metadata = image.getexif() #extracts exif metadata TODO: make work for pngs as well
+    value = "" #value is a string that contains the DateTime value (date and time concatenated together)
+
+    #for every tagid in metadata:
+    #if the tag is DateTime, do:
+    #get the value for DateTime
     for tagid in metadata:
         # getting the tag name instead of tag id
-        tagname = TAGS.get(tagid, tagid)
-        if(tagname == 'DateTime'):
-            value = metadata.get(tagid)
+        tagname = TAGS.get(tagid, tagid) #extracts the name from the id
+        if(tagname == 'DateTime'): #found a match
+            value = metadata.get(tagid) #gets value
             
-    return value.split(' ')
+    return value.split(' ') #returns a list: [DATE, TIME]
 
+#takes in a list (listOfInfo) and a cutoff confidence, and returns a row in the CSV file
+#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR),...]
+#cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
+#returns: a string: a row in a CSV
 def makeCSVHelper(listOfInfo, cutoff):
-    finalText = ''
+    finalText = '' #the row that is returned
 
-    #must adhere to: File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count
-    for aTuple in listOfInfo: #listOfInfo = [(imageName, prediction, probability),...]
-        finalText = finalText + aTuple[0] + ',' #adds the name of the file to the string
+    #for every tuple in listOfInfo:
+    #add the name of the image, the relative path of the image, the DateTime of the image, delete flag, camera number, time of day, animal, and the count to finalText
+    #Note: order of concatenation must follow:
+    #   File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n
+    for aTuple in listOfInfo:
+        finalText = finalText + aTuple[0] + ',' + './' + aTuple[0] + ',' #adds the name of the file and relative path to the string
+
+        timeStamp = getDateAndTime(aTuple) #gets dateTime value as a list of date and time
+        finalText = finalText + timeStamp[0] + timeStamp[1] + ',' #adds DateTime to string
+        finalText = finalText + 'False,,,' #filler; adds deleteFlag, cameraNumber, and DayNight to string
 
         label = "" #what is in the image
         if aTuple[2] >= cutoff: #this means that the AI made a prediction with a suitable confidence
@@ -50,28 +68,26 @@ def makeCSVHelper(listOfInfo, cutoff):
                 case _:
                     label = "ERROR"
         
-        finalText = finalText + label + ',' + './' + aTuple[0] + ',' #adds the prediction and the relative path to the image
-
-        timeStamp = getDateAndTime(aTuple)
-        print(timeStamp)
-
+        finalText = finalText + label + ','  #adds the prediction to the image; TODO: add count
         finalText += '\n' #ends the entry for the image in the CSV
     
     return finalText
 
 #this function will create csv file with all the labels
+#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR),...]
+#cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
+#returns: nothing
 def makeCSV(listOfInfo, cutoff):
-    if not os.path.isfile('labeledData.csv'):
-        file = open('labeledData.csv', 'a')
-        file.write(makeCSVHelper(listOfInfo, cutoff))
-        file.close()
-    else:
-        file = open('labeledData.csv', 'w')
-        file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n')
-        file.write(makeCSVHelper(listOfInfo, cutoff))
-        print('success!')
+    #if the csv already exists, add to it. TODO: consider simply overwritting. Images may be entered twice, or add handling
+    if  os.path.isfile('labeledData.csv'):
+        file = open('labeledData.csv', 'a') #open the csv file and append to it
+        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
+        file.close() #close file. We're done with it
 
-
+    else: #file does NOT exist already
+        file = open('labeledData.csv', 'w') #create/overwrite the csv file and write to it
+        file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n') #add the column titles
+        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
 
 #preprocesses the images further for the AI; copied and modified from program that compiled the model
 #takes in a dataset of images
