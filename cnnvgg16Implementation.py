@@ -5,12 +5,54 @@ import os
 
 cnn = load_model('vgg16Run.h5') #loads the saved model
 
+def makeCSVHelper(listOfInfo, cutoff):
+    finalText = ''
+
+    #must adhere to: File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count
+    for aTuple in listOfInfo: #listOfInfo = [(imageName, prediction, probability),...]
+        finalText = finalText + aTuple[0] + ',' #adds the name of the file to the string
+
+        label = "" #what is in the image
+        if aTuple[2] >= cutoff: #this means that the AI made a prediction with a suitable confidence
+            match aTuple[1]:
+                case 0:
+                    label = "" #empty
+                case 1:
+                    label = 'Fox' #fox-back
+                case 2:
+                    label = 'Fox' #fox-front
+                case 3:
+                    label = 'Fox' #fox-side
+                case 4:
+                    label = 'Jackal' #jackal-back
+                case 5:
+                    label = 'Jackal' #jackal-front
+                case 6:
+                    label = 'Jackal' #jackal-side
+                case 7:
+                    label = 'Review' #other
+                case _:
+                    label = "ERROR"
+        
+        finalText = finalText + label + ',' + './' + aTuple[0] + ',' #adds the prediction and the relative path to the image
+
+        
+
+        finalText += '\n' #ends the entry for the image in the CSV
+    
+    return finalText
+
 #this function will create csv file with all the labels
-def makeCSV(listOfInfo):
-    file = open('labeledCandids.csv', 'w')
-    file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n')
-    file.close()
-    print('success!')
+def makeCSV(listOfInfo, cutoff):
+    if not os.path.isfile('labeledData.csv'):
+        file = open('labeledData.csv', 'a')
+        file.write(makeCSVHelper(listOfInfo, cutoff))
+        file.close()
+    else:
+        file = open('labeledData.csv', 'w')
+        file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n')
+        file.write(makeCSVHelper(listOfInfo, cutoff))
+        print('success!')
 
 
 
