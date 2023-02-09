@@ -2,8 +2,24 @@ import numpy as np
 import tensorflow as tf
 from keras.models import load_model
 import os
+from PIL import Image
+from PIL.ExifTags import TAGS
 
 cnn = load_model('vgg16Run.h5') #loads the saved model
+
+def getDateAndTime(aTuple):
+    dirToImage = aTuple[3] + '/' + aTuple[0]
+    
+    image = Image.open(dirToImage)
+    metadata = image.getexif()
+    value = ""
+    for tagid in metadata:
+        # getting the tag name instead of tag id
+        tagname = TAGS.get(tagid, tagid)
+        if(tagname == 'DateTime'):
+            value = metadata.get(tagid)
+            
+    return value.split(' ')
 
 def makeCSVHelper(listOfInfo, cutoff):
     finalText = ''
@@ -36,7 +52,8 @@ def makeCSVHelper(listOfInfo, cutoff):
         
         finalText = finalText + label + ',' + './' + aTuple[0] + ',' #adds the prediction and the relative path to the image
 
-        
+        timeStamp = getDateAndTime(aTuple)
+        print(timeStamp)
 
         finalText += '\n' #ends the entry for the image in the CSV
     
@@ -104,6 +121,7 @@ def runModel(mainDIR):
 
         #adds the tuple to the list
         listOfPredictions.append((imageNames[i], 
-                                  np.argmax(predictions[i], 
-                                  np.max(predictions[0]))))
-    return(predictions)
+                                  np.argmax(predictions[i]), 
+                                  np.max(predictions[0]),
+                                  mainDIR))
+    return(listOfPredictions)
