@@ -63,7 +63,7 @@ def applyFunc(dataset):
 
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
-        print('batch ', batchCount, 'completed. '(round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
         batchCount += 1
 
     #creates a new BatchDataset from imgList and imgLabels
@@ -124,11 +124,11 @@ model.summary() #prints out a summary table
 #runs the model and saves it as a History object
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
-                 steps_per_epoch = 30, 
+                 steps_per_epoch = None, 
                  epochs = 15,
                  callbacks = es1,
                  validation_data = trainData[1],
-                 validation_steps = 10, 
+                 validation_steps = None, 
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
