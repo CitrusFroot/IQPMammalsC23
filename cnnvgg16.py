@@ -62,6 +62,7 @@ def applyFunc(dataset):
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.') #more debug text
         batchCount += 1 #even more debug stuff
@@ -70,6 +71,10 @@ def applyFunc(dataset):
         print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
         batchCount += 1
 >>>>>>> f4a168b (finished experimentation with steps per epoch (see results). currently set up to experiment with validation steps)
+=======
+        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+        batchCount += 1
+>>>>>>> c7b425d (fixed merge conflicts)
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
