@@ -55,14 +55,19 @@ def applyFunc(dataset):
      #convert img to rgb, add it to imgList
      #add label to imgLabels
      print('=========== PREPROCESSING: ===========\n')
-     for setOfBatches in dataset:
-        print('processing batch: ...')
+     batchCount = 1
+     print('========\n', len(dataset), 'batches to process. Beginning ...')
+     for setOfBatches in dataset:  
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
+
+        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+        batchCount += 1
      print("=========== PREPROCESSING COMPLETE ===========")
+     
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
      print('new dataset created. tasks complete! \n===========')
