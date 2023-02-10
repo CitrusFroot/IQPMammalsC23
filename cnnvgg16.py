@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt #for data visualization
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
-batchSize = 2   #set to power of 2 for optimal usage
+batchSize = 8   #set to power of 2 for optimal usage
 valSplit = 0.3  #percent of data that is saved for testing
 
 #Sets the directories as global variables for the sake of convienence
@@ -120,9 +120,9 @@ model.summary() #prints out a summary table
 
 #runs the model and saves it as a History object
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
-                 steps_per_epoch = 30, 
-                 epochs = 5, 
-                 validation_steps = 5, 
+                 steps_per_epoch = None, 
+                 epochs = 15, 
+                 validation_steps = 30, 
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
@@ -133,6 +133,14 @@ plt.title('VGG-16 Model Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.plot(hist.history['accuracy'])
+plt.plot(hist.history['val_accuracy'])
+plt.legend(['Accuracy', 'Validation accuracy'])
+plt.show()
+
+plt.title('VGG-16 Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
 plt.plot(hist.history['loss'])
-plt.legend(['Accuracy', 'Loss'])
+plt.plot(hist.history['val_loss'])
+plt.legend(['Loss', 'Validation loss'])
 plt.show()
