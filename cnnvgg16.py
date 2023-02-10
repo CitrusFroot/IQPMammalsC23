@@ -119,7 +119,7 @@ model = keras.Sequential([VGG,
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
 
 #compile the model
-#Other optimizers: adagrad (keep testing), rmsprop (mid), adadelta (bad), nadam (mid), ftrl 
+#Other optimizers: adagrad (best), rmsprop (mid), adadelta (bad), nadam (mid), ftrl(good) 
 model.compile(optimizer = 'adagrad',                       #AdaM performs best in industry. (Experiment with AdaMax (good). Rising in standard) sgd more stable but worse values
               loss = 'sparse_categorical_crossentropy', #sparse_categorical_crossentropy because [insert reason] + code doesn't work otherwise
               metrics = ['accuracy'])
