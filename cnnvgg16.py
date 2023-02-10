@@ -19,8 +19,7 @@ valSplit = 0.3  #percent of data that is saved for testing
 
 
 #Sets the directories as global variables for the sake of convienence
-#trainDIR = "D:\\All types of images/Training Data/"
-trainDIR = "./Training Data/"
+trainDIR = "D:\All types of images\Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
 numSubdirectories = len(list(os.walk(trainDIR)))
@@ -67,6 +66,10 @@ def applyFunc(dataset):
 
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
+
+        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
+        batchCount += 1
+
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
