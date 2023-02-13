@@ -7,7 +7,7 @@ import keras #Provides infrastructure for Neural Network
     #Flatten: Converts 2D arrays into a single, continuous vector
     #Dense: last 3 layers; must be dense so that a valid output can be generated
 import os #used for directory parsing
-import json #used to read json files
+import json #used to read json files 
 import numpy as np #here for programmer's sake. Some debugging code that is currently commented out requires numpy. Also, some of the code runs numpy behind the scenes
 import matplotlib.pyplot as plt #for data visualization
 
@@ -30,7 +30,7 @@ numSubdirectories = len(list(os.walk(trainDIR)))
 #pulls images from directory, labels them, shuffles them, and divides them into testing and training data
 trainData = tf.keras.utils.image_dataset_from_directory(
                                                         directory = trainDIR,
-                                                        labels = 'inferred',                    #The labels are derived from the folder names that have the images
+                                                        labels = 'inferred',                    #The labels are derived from the folder names that have the images 
                                                         color_mode = 'grayscale',               #Importing the images in as grayscale standardizes the mix of grayscale and RGB images
                                                         batch_size = batchSize,                 #sets the batch size to batchSize
                                                         image_size = (imageResX, imageResY),    #resizes the images accordingly
@@ -46,18 +46,17 @@ trainData = tf.keras.utils.image_dataset_from_directory(
 def applyFunc(dataset):
      imgList = [] #list of all RGB images
      imgLabels = [] #list of labels assigned to each image
-    
 
      #for every setOfBatches in dataset:
      #convert img to rgb, add it to imgList
      #add label to imgLabels
      print('=========== PREPROCESSING: ===========\n')
-     batchCount = 1 #for debugging purposes
+     batchCount = 1 #for debugging purposes 
      print('========\n', len(dataset), 'batches to process. Beginning ...')
      for setOfBatches in dataset:  #set of batches contains a batch of images and a batch of labels for each image
         for img in setOfBatches[0]: #setOfBatches[0] = batch of images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
-            imgList.append(img) #adds to list
+            imgList.append(img) #adds to list 
 
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
@@ -111,12 +110,11 @@ VGG.trainable = False #we dont want to train the first 13 layers, just the last 
 
 #we have 3 dense layers (standard CNN framework)
 model = keras.Sequential([VGG,                  
-                         keras.layers.Flatten(),                                                    #converts the model into a 1D vector
+                         keras.layers.Flatten(),                                                    #converts the model into a 1D vector 
                          keras.layers.Dense(units = 1024, activation = 'selu'),                     #this is the best performing structure out of what was tested    
                          keras.layers.Dense(units = 1024, activation = 'relu'),                     #this is the best performing structure out of what was tested
-                         keras.layers.Dense(units = numSubdirectories,   activation = 'softmax')])  #units here must be the same size as the number of possible classifications; each one corresponds to a classification.
+                         keras.layers.Dense(units = numSubdirectories, activation = 'softmax')])    #units here must be the same size as the number of possible classifications; each one corresponds to a classification.
                                                                                                     #activation must be softmax here to convert the outputs to probabilities. SUM(units 1-8) = 1
-
 
 #compile the model
 #optimizer: adagrad (best), rmsprop (mid), adadelta (bad), nadam (mid), ftrl(good), sgd (more stable, horrible values)
@@ -162,4 +160,4 @@ plt.ylabel('Loss')
 plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
 plt.legend(['Loss', 'Validation loss'])
-plt.show() 
+plt.show()  
