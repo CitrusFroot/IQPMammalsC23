@@ -1,13 +1,13 @@
 ##### IMPORT SECTION #####
 import tensorflow as tf
-import keras, os #Provides infrastructure for Neural Network (NN)
-
+import keras #Provides infrastructure for Neural Network
 #The following are used from Keras. They are mentioned here for the programmer's understanding:
     #Conv2D: images are 2D, hence 2D. Tells system to use Convolutional NNs (CNN)
     #MaxPool2D: Max Pooling has been found to be the better option for pooling with image identification
     #Flatten: Converts 2D arrays into a single, continuous vector
     #Dense: last 3 layers; must be dense so that a valid output can be generated
-
+import os #used for directory parsing
+import json #used to read json files
 import numpy as np #here for programmer's sake. Some debugging code that is currently commented out requires numpy. Also, some of the code runs numpy behind the scenes
 import matplotlib.pyplot as plt #for data visualization
 
@@ -23,7 +23,7 @@ valSplit = 0.3  #percent of data that is saved for testing
 trainDIR = "E:\All types of images\Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
-numSubdirectories = len(list(os.walk(trainDIR)))
+numSubdirectories = len(list(os.walk(trainDIR))) 
 
 ############################### PREPROCESSING ###############################
 
@@ -35,7 +35,7 @@ trainData = tf.keras.utils.image_dataset_from_directory(
                                                         batch_size = batchSize,                 #sets the batch size to batchSize
                                                         image_size = (imageResX, imageResY),    #resizes the images accordingly
                                                         shuffle = True,                         #default is true; here for programmer's sake
-                                                        validation_split = valSplit,            #sets the validation split to valSplit
+                                                        validation_split = valSplit,            #sets the validation split to valSplit 
                                                         seed = 19121954,                        #seed chosen arbitrarily; birth and death of Alan Turing (my hero)
                                                         subset = 'both')                        #makes trainData a list, where trainData = [training data dataset object, validation data dataset object]
 
@@ -61,20 +61,10 @@ def applyFunc(dataset):
 
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
-<<<<<<< HEAD
-<<<<<<< HEAD
 
         print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.') #more debug text
         batchCount += 1 #even more debug stuff
      print("=========== PREPROCESSING COMPLETE ===========")
-=======
-        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
-        batchCount += 1
->>>>>>> f4a168b (finished experimentation with steps per epoch (see results). currently set up to experiment with validation steps)
-=======
-        print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
-        batchCount += 1
->>>>>>> c7b425d (fixed merge conflicts)
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
@@ -144,7 +134,6 @@ model.summary() #prints out a summary table of the model
 #################################
 
 #runs the model and saves it as a History object
-<<<<<<< HEAD
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if validation loss doesn't improve after 3 epochs
 hist = model.fit(x = trainData[0],                 #the training data
                  steps_per_epoch = None,           #None defaults to the number of batches
@@ -153,16 +142,6 @@ hist = model.fit(x = trainData[0],                 #the training data
                  validation_data = trainData[1],   #the validation data
                  validation_steps = None,          #None defaults to the number of batches
                  verbose = 1)                      #1 shows progress bar. Helps gauge how much is done
-=======
-es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
-hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
-                 steps_per_epoch = None, 
-                 epochs = 15,
-                 callbacks = es1,
-                 validation_data = trainData[1],
-                 validation_steps = None, 
-                 verbose = 1)           #should be 2 in final system
->>>>>>> f4a168b (finished experimentation with steps per epoch (see results). currently set up to experiment with validation steps)
 
 model.save('vgg16Run.h5') #saves the model as a readable file
 print('Saved model to disk') #confirmation message
@@ -183,4 +162,4 @@ plt.ylabel('Loss')
 plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
 plt.legend(['Loss', 'Validation loss'])
-plt.show()
+plt.show() 
