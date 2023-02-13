@@ -30,7 +30,7 @@ numSubdirectories = len(list(os.walk(trainDIR)))
 #pulls images from directory, labels them, shuffles them, and divides them into testing and training data
 trainData = tf.keras.utils.image_dataset_from_directory(
                                                         directory = trainDIR,
-                                                        labels = 'inferred',                    #The labels are derived from the folder names that have the images 
+                                                        labels = 'inferred',                    #The labels are derived from the folder names that have the images  
                                                         color_mode = 'grayscale',               #Importing the images in as grayscale standardizes the mix of grayscale and RGB images
                                                         batch_size = batchSize,                 #sets the batch size to batchSize
                                                         image_size = (imageResX, imageResY),    #resizes the images accordingly
@@ -76,7 +76,10 @@ trainTData = trainData[0]
 trainVData = trainData[1]
 #Applies the applyFunc to each dataset
 trainTData = trainTData.apply(applyFunc)
+trainTData = trainTData.shuffle(buffer_size = sizeData, seed = 19121954) #shuffles the data
+
 trainVData = trainVData.apply(applyFunc)
+trainVData = trainVData.shuffle(buffer_size = sizeData, seed = 19121954) #shuffles data to same seed
 
 trainData = [trainTData, trainVData] #recombines the two datasets
 '''
