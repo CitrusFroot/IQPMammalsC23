@@ -16,8 +16,9 @@ imageResY = 224 #set to camera specifications. best are 64, 256
 batchSize = 8   #set to power of 2 for optimal usage
 valSplit = 0.3  #percent of data that is saved for testing
 
+
 #Sets the directories as global variables for the sake of convienence
-trainDIR = "E:\All types of images/Training Data/"
+trainDIR = "D:\All types of images\Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
 numSubdirectories = len(list(os.walk(trainDIR)))
@@ -51,6 +52,7 @@ def applyFunc(dataset):
      imgList = [] #list of all RGB images
      imgLabels = [] #list of labels assigned to each image
     
+
      #for every setOfBatches in dataset:
      #convert img to rgb, add it to imgList
      #add label to imgLabels
@@ -61,13 +63,14 @@ def applyFunc(dataset):
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
+
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
 
         print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
         batchCount += 1
      print("=========== PREPROCESSING COMPLETE ===========")
-     
+
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
      print('new dataset created. tasks complete! \n===========')
@@ -102,19 +105,22 @@ VGG = keras.applications.VGG16(input_shape = (imageResX, imageResY, 3),
                                weights = 'imagenet', 
                                classes = numSubdirectories)
 
+print(VGG.weights)
+
 VGG.trainable = False 
 
 model = keras.Sequential([VGG,
                          keras.layers.Flatten(),
-                         keras.layers.Dense(units = 256, activation = 'relu'),
-                         keras.layers.Dense(units = 256, activation = 'relu'),
+                         keras.layers.Dense(units = 1024, activation = 'selu'),
+                         keras.layers.Dense(units = 1024, activation = 'relu'),
                          keras.layers.Dense(units = numSubdirectories,   activation = 'softmax')])
 #we have 3 dense layers (standard CNN framework), the first 2 have 256 units (nodes/neurons), the last has 2
 #relu is industry standard; known for being optimal; test with Leaky ReLu for extra performance
 #softmax function converts vector of numbers into probability distribution; used to guess what mammal is in image; good for multiclassed datasets (what we are using) + industry standard
 
 #compile the model
-model.compile(optimizer = 'adam',                       #AdaM performs best in industry. (Experiment with AdaMax. Rising in standard) sgd?
+#Other optimizers: adagrad (best), rmsprop (mid), adadelta (bad), nadam (mid), ftrl(good) 
+model.compile(optimizer = 'adagrad',                       #AdaM performs best in industry. (Experiment with AdaMax (good). Rising in standard) sgd more stable but worse values
               loss = 'sparse_categorical_crossentropy', #sparse_categorical_crossentropy because [insert reason] + code doesn't work otherwise
               metrics = ['accuracy'])
 
@@ -126,22 +132,28 @@ model.summary() #prints out a summary table
 #runs the model and saves it as a History object
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
-                 steps_per_epoch = None, 
+
+                 steps_per_epoch = 30, 
                  epochs = 15,
-                 callbacks = [es1],
-                 validation_steps = 30, 
+                 callbacks = es1,
+                 validation_data = trainData[1],
+                 validation_steps = 10, 
+
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
 print('Saved model to disk') #confirmation message
-print(hist.history.keys())
+
 #The following code creates a graph of the accuracy of the modoel
+
 plt.title('VGG-16 Model Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.plot(hist.history['accuracy'])
 plt.plot(hist.history['val_accuracy'])
-plt.legend(['Accuracy', 'Validation accuracy'])
+
+plt.legend(['Accuracy', 'Validation Accuracy'])
+
 plt.show()
 
 plt.title('VGG-16 Model Loss')
@@ -151,3 +163,4 @@ plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
 plt.legend(['Loss', 'Validation loss'])
 plt.show()
+
