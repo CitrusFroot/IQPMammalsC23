@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt #for data visualization
 
 imageResX = 224 #set to camera specifications. best are 64, 256
 imageResY = 224 #set to camera specifications. best are 64, 256
-
 batchSize = 8   #set to power of 2 for optimal usage
 valSplit = 0.3  #percent of data that is saved for testing
 
@@ -23,7 +22,7 @@ trainDIR = "D:\All types of images\Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
 numSubdirectories = len(list(os.walk(trainDIR)))
-
+ 
 #The following sets up the classes we are sorting mammals into
 #This is automatically inferred from the program. MAKE SURE ALL SUBDIRECTORIES OF trainDIR are properly labeled!!
 #This specifies the order we want them to be organized in. so jackal-front = 0, jackal-side = 1, ... nothing = 7
@@ -53,13 +52,14 @@ def applyFunc(dataset):
      imgList = [] #list of all RGB images
      imgLabels = [] #list of labels assigned to each image
     
-    #for every setOfBatches in dataset:
-    #convert img to rgb, add it to imgList
-    #add label to imgLabels
+
+     #for every setOfBatches in dataset:
+     #convert img to rgb, add it to imgList
+     #add label to imgLabels
+     print('=========== PREPROCESSING: ===========\n')
      batchCount = 1
      print('========\n', len(dataset), 'batches to process. Beginning ...')
-
-     for setOfBatches in dataset:
+     for setOfBatches in dataset:  
         for img in setOfBatches[0]: #setOfBatches[0] = images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list
@@ -69,7 +69,7 @@ def applyFunc(dataset):
 
         print('batch ', batchCount, 'completed. ', (round((batchCount/len(dataset) * 100), 2)), '%', ' finished.')
         batchCount += 1
-
+     print("=========== PREPROCESSING COMPLETE ===========")
 
     #creates a new BatchDataset from imgList and imgLabels
      newTrainData = tf.data.Dataset.from_tensor_slices((imgList, imgLabels)).batch(batch_size = batchSize)
@@ -132,11 +132,13 @@ model.summary() #prints out a summary table
 #runs the model and saves it as a History object
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
+
                  steps_per_epoch = 30, 
                  epochs = 15,
                  callbacks = es1,
                  validation_data = trainData[1],
                  validation_steps = 10, 
+
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
@@ -149,7 +151,9 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.plot(hist.history['accuracy'])
 plt.plot(hist.history['val_accuracy'])
+
 plt.legend(['Accuracy', 'Validation Accuracy'])
+
 plt.show()
 
 plt.title('VGG-16 Model Loss')
@@ -157,6 +161,6 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
-plt.legend(['Loss', 'Validation Loss'])
+plt.legend(['Loss', 'Validation loss'])
 plt.show()
 
