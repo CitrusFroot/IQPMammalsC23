@@ -58,6 +58,8 @@ def applyFunc(dataset):
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
             imgList.append(img) #adds to list 
 
+            imageNum += 1
+       
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
 
