@@ -99,7 +99,6 @@ def prepImages(dataset):
     #convert img to rgb, add it to imgList
     print('=========== PREPROCESSING: ===========\n')
     for image in dataset:
-        print('processing image: ...') #debug message
         image = tf.image.grayscale_to_rgb(image) #converts image from grayscale to rgb. Since images were standardized to grayscale, we now can convert them back to rgb for the AI to work
         imgList.append(image) #adds the modified image to imgList
     print("=========== PREPROCESSING COMPLETE ===========")
@@ -129,15 +128,17 @@ def runModel(mainDIR):
 
     #for every prediction in predictions
     #add a tuple of the image name, highest probable prediction, and the probability of that prediction to listOfPredictions
-    for i in range(0,len(predictions) - 1):
+    
+    for i in range(len(predictions)):
+        print(i)
         #following 3 lines of code are for debug/terminal purposes. Please don't delete for programmer's convenience
         print('file name: ' + imageNames[i])
-        print('most likely:', np.argmax(predictions[i]), 100*np.max(predictions[0]), '%')
-        print('least likely:', np.argmin(predictions[i]), 100*np.min(predictions[0]), '%\n')
+        print('most likely:', np.argmax(predictions[i]), 100*np.max(predictions[i]), '%')
+        print('least likely:', np.argmin(predictions[i]), 100*np.min(predictions[i]), '%\n')
 
         #adds the tuple to the list
         listOfPredictions.append((imageNames[i], 
                                   np.argmax(predictions[i]), 
-                                  np.max(predictions[0]),
+                                  np.max(predictions[i]),
                                   mainDIR))
     return(listOfPredictions)
