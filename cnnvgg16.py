@@ -111,8 +111,8 @@ VGG.trainable = False
 
 model = keras.Sequential([VGG,
                          keras.layers.Flatten(),
-                         keras.layers.Dense(units = 512, activation = 'relu'),
-                         keras.layers.Dense(units = 512, activation = 'relu'),
+                         keras.layers.Dense(units = 1024, activation = 'selu'),
+                         keras.layers.Dense(units = 1024, activation = 'relu'),
                          keras.layers.Dense(units = numSubdirectories,   activation = 'softmax')])
 #we have 3 dense layers (standard CNN framework), the first 2 have 256 units (nodes/neurons), the last has 2
 #relu is industry standard; known for being optimal; test with Leaky ReLu for extra performance
