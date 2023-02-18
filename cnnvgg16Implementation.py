@@ -46,11 +46,14 @@ def makeCSVHelper(listOfInfo, cutoff):
         finalText = finalText + timeStamp[0] + timeStamp[1] + ',' #adds DateTime to string
         finalText = finalText + 'False,,,' #filler; adds deleteFlag, cameraNumber, and DayNight to string
 
-        label = "" #what is in the image
+        label = "Review" #what is in the image
         if aTuple[2] >= cutoff: #this means that the AI made a prediction with a suitable confidence
             match aTuple[1]:
                 case 0:
-                    label = "" #empty
+                    if aTuple[2] > 0.5:   #empty if aTuple is confident. Else, save it for review
+                        label = "Empty"
+                    else:
+                        label = "Review" 
                 case 1:
                     label = 'Fox' #fox-back
                 case 2:
@@ -68,7 +71,7 @@ def makeCSVHelper(listOfInfo, cutoff):
                 case _:
                     label = "ERROR"
         
-        finalText = finalText + label + ','  #adds the prediction to the image; TODO: add count
+        finalText = finalText + label  #adds the prediction to the image; TODO: add count
         finalText += '\n' #ends the entry for the image in the CSV
     
     return finalText
