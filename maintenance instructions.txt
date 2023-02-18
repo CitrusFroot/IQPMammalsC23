@@ -1,11 +1,28 @@
-Issues you may run into and how to fix them (For programmers)
+Issues you may run into and how to fix them:
+1. MegaDetector failed to run
 
-1. Image-System incompatibility
-    our model works with grayscale images that are interpreted as RGB. The most common issue that this relates to
-    is when the photos you are analyzing are not in the correct format. To fix this, simply run the following lines on each image:
+This is most likely caused by the GPU on your system. This can be solved in two ways:
+    1. Purchase a CUDA enabled GPU
+    2. Switch the processor used by MegaDetector to the CPU. Note that doing this will greatly extend the runtime of the program, and should be done at night or at closing hours.
+        To learn how to swap the processor, visit this link: [INSERT LINK]
     
-    img = tf.image.rgb_to_grayscale(img)
-    img = tf.image.grayscale_to_rgb(img)
+2. The AI keeps making too many inaccuracies
 
-    Note that you can skip the first line if you know for certain your image is already grayscale.
-    However, it must be interpreted as RGB at the end.
+To address this, the simplest method is to keep reviewing the predictions it makes and retraining the model. While this will take time, as more and more data gets processed, it will perform better.
+If this is not an option, the next best thing is to contact the developers at the following emails:
+    jtreiss@wpi.edu
+    lhall@wpi.edu
+    lcarleu@wpi.edu
+    jdrockmael@wpi.edu
+
+If neither of these options are viable, utilizing just MegaDetector is also a solution. Any issues that arise can be addressed by contacting Microsoft.
+To do this, please refer to this guide: [INSERT LINK]
+
+3. I want the AI to label more animals than just jackals and foxes
+
+This problem requires the source code of the AI to be altered. The best course of action is to contact the developers at:
+    jtreiss@wpi.edu
+    lhall@wpi.edu
+    lcarleu@wpi.edu
+    jdrockmael@wpi.edu
+or contact WPI for a new research team to expand this project.
