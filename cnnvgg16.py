@@ -163,4 +163,3 @@ plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
 plt.legend(['Loss', 'Validation loss'])
 plt.show()
-
