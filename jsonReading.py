@@ -5,7 +5,7 @@ import json #needed to read json files
 #returns: a list of integers representing the count of animal detections in each image
 def getCount(mainDIR):
     counts = [] #list that gets returned
-    jsonFile = open(mainDIR + '/image_recognition_file.json') #opens the JSON file
+    jsonFile = open(mainDIR + '\\image_recognition_file.json') #opens the JSON file
     data = json.load(jsonFile) #accesses the data in the json file
 
     #for every image dictionary in the images dictionary in data
@@ -13,8 +13,8 @@ def getCount(mainDIR):
     for image in data["images"]:
         count = 0 #gets added to counts
         for detection in image["detections"]:
-            if(detection["conf"] >= .1 and detection["category"] == 1): #if we are confident in the detection, and the detection is category 1 (animal), do:
+            print(detection)
+            if(detection["conf"] >= .1 and detection["category"] == '1'): #if we are confident in the detection, and the detection is category 1 (animal), do:
                 count += 1 #increase the count
-        if count > 0:
-            counts.append(count) #add the final count to counts
+        counts.append(count) #add the final count to counts
     return counts

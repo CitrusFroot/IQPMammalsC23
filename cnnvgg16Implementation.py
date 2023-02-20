@@ -4,24 +4,25 @@ from keras.models import load_model
 import os
 from PIL import Image
 from PIL.ExifTags import TAGS
+import jsonReading as jr
 
 cnn = load_model('vgg16Run.h5') #loads the saved model
 
 #this function will create csv file with all the labels
-#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR),...]
+#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR, relPathImages),...]
 #cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
 #returns: nothing
-def makeCSV(listOfInfo, cutoff):
+def makeCSV(listOfInfo, count, cutoff):
     #if the csv already exists, add to it. TODO: consider simply overwritting. Images may be entered twice, or add handling
     if  os.path.isfile('labeledData.csv'):
         file = open('labeledData.csv', 'a') #open the csv file and append to it
-        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
+        file.write(makeCSVHelper(listOfInfo, count, cutoff)) #add the row from makeCSVHelper
         file.close() #close file. We're done with it
 
     else: #file does NOT exist already
         file = open('labeledData.csv', 'w') #create/overwrite the csv file and write to it
         file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n') #add the column titles
-        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
+        file.write(makeCSVHelper(listOfInfo, count, cutoff)) #add the row from makeCSVHelper
 
 ############################################################################################################
 #this function reads a csv for the name of an image, and the animal present
@@ -52,10 +53,10 @@ def readCSV(mainDIR):
     return imageAndLabel #returns the list
 
 #gets the date and time from an image's metadata
-#aTuple: a tuple of information; (imageName, prediction, probability, mainDIR)
+#aTuple: a tuple of information; (imageName, prediction, probability, mainDIR, relPathImages)
 #returns: a list of size 2 consisting of the date and the time separately
 def getDateAndTime(aTuple):
-    dirToImage = aTuple[3] + '/' + aTuple[0] #gets the full directory to the image
+    dirToImage = aTuple[3] + '\\' + aTuple[4] #gets the full directory to the image
     
     image = Image.open(dirToImage) #opens the image for reading
     metadata = image.getexif() #extracts exif metadata TODO: make work for pngs as well
@@ -73,28 +74,31 @@ def getDateAndTime(aTuple):
     return value.split(' ') #returns a list: [DATE, TIME]
 
 #takes in a list (listOfInfo) and a cutoff confidence, and returns a row in the CSV file
-#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR),...]
+#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR, relPathImages),...]
 #cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
 #returns: a string: a row in a CSV
-def makeCSVHelper(listOfInfo, cutoff):
+def makeCSVHelper(listOfInfo, detectionCount, cutoff):
     finalText = '' #the row that is returned
-
     #for every tuple in listOfInfo:
     #add the name of the image, the relative path of the image, the DateTime of the image, delete flag, camera number, time of day, animal, and the count to finalText
     #Note: order of concatenation must follow:
     #   File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n
+    countIndex = 0
     for aTuple in listOfInfo:
-        finalText = finalText + aTuple[0] + ',' + './' + aTuple[0] + ',' #adds the name of the file and relative path to the string
+        finalText = finalText + aTuple[0] + ',' #adds the name of the file and relative path to the string
+        finalText = finalText + aTuple[4] + ','   #adds the relative path of the file to the string
 
         timeStamp = getDateAndTime(aTuple) #gets dateTime value as a list of date and time
         finalText = finalText + timeStamp[0] + timeStamp[1] + ',' #adds DateTime to string
-        finalText = finalText + 'False,,,' #filler; adds deleteFlag, cameraNumber, and DayNight to string
+        finalText = finalText + 'False,' #adds DeleteFlag
+        finalText = finalText + ','      #adds CameraNumber (blank)
+        finalText = finalText + ','      #adds DayNight (blank; TODO)
 
         label = "Review" #what is in the image
         if aTuple[2] >= cutoff: #this means that the AI made a prediction with a suitable confidence
             match aTuple[1]:
                 case 0:
-                    if aTuple[2] > 0.5:   #empty if aTuple is confident. Else, save it for review
+                    if "\\empty\\" in aTuple[4]:   #empty if aTuple is confident. Else, save it for review
                         label = "Empty"
                     else:
                         label = "Review" 
@@ -113,11 +117,11 @@ def makeCSVHelper(listOfInfo, cutoff):
                 case 7:
                     label = 'Review' #other
                 case _:
-                    label = "ERROR"
+                    label = "Review"
         
-        finalText = finalText + label  #adds the prediction to the image; TODO: add count
-        finalText += '\n' #ends the entry for the image in the CSV
-    
+        finalText = finalText + label + ','  #adds the prediction to the image
+        finalText = finalText + str(detectionCount[countIndex]) + "\n" #adds count to entry and ends the entry for the image in the CSV
+        countIndex += 1
     return finalText
 
 
@@ -157,21 +161,31 @@ def runModel(mainDIR):
 
     imagesToPredict = prepImages(imagesToPredict) #runs the prepImages function
     predictions = cnn.predict(imagesToPredict) #runs the function that makes predictions on the dataset
-    imageNames = os.listdir(mainDIR) #gets the names of all the files in mainDIR for later purposes
+    imageNames = []
+    relPathImages = []
+    for pathname, subdirnames, subfilenames in os.walk(mainDIR):
+        if(len(subdirnames) == 0):
+            for file in subfilenames:
+                absPath = pathname + '\\' + file
+                relPath = os.path.relpath(absPath, mainDIR)
+
+                imageNames.append(file)  #gets the names of all the files in mainDIR for later purposes
+                relPathImages.append(relPath) #gets the relative path of all images for csv generation
 
     #for every prediction in predictions
     #add a tuple of the image name, highest probable prediction, and the probability of that prediction to listOfPredictions
-    
-    for i in range(len(predictions)):
-        print(i)
-        #following 3 lines of code are for debug/terminal purposes. Please don't delete for programmer's convenience
-        print('file name: ' + imageNames[i])
-        print('most likely:', np.argmax(predictions[i]), 100*np.max(predictions[i]), '%')
-        print('least likely:', np.argmin(predictions[i]), 100*np.min(predictions[i]), '%\n')
+    if(len(predictions) == len(imageNames) and len(predictions) == len(relPathImages)):
+        for i in range(len(predictions)):
+            print(i)
+            #following 3 lines of code are for debug/terminal purposes. Please don't delete for programmer's convenience
+            print('file name: ' + imageNames[i])
+            print('most likely:', np.argmax(predictions[i]), 100*np.max(predictions[i]), '%')
+            print('least likely:', np.argmin(predictions[i]), 100*np.min(predictions[i]), '%\n')
 
-        #adds the tuple to the list
-        listOfPredictions.append((imageNames[i], 
-                                  np.argmax(predictions[i]), 
-                                  np.max(predictions[i]),
-                                  mainDIR))
+            #adds the tuple to the list
+            listOfPredictions.append((imageNames[i],
+                                        np.argmax(predictions[i]), 
+                                        np.max(predictions[i]),
+                                        mainDIR,
+                                        relPathImages[i]))
     return(listOfPredictions)
