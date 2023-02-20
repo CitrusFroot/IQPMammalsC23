@@ -15,5 +15,6 @@ def getCount(mainDIR):
         for detection in image["detections"]:
             if(detection["conf"] >= .1 and detection["category"] == 1): #if we are confident in the detection, and the detection is category 1 (animal), do:
                 count += 1 #increase the count
-        counts.append(count) #add the final count to counts
+        if count > 0:
+            counts.append(count) #add the final count to counts
     return counts

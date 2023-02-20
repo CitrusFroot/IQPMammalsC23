@@ -7,6 +7,50 @@ from PIL.ExifTags import TAGS
 
 cnn = load_model('vgg16Run.h5') #loads the saved model
 
+#this function will create csv file with all the labels
+#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR),...]
+#cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
+#returns: nothing
+def makeCSV(listOfInfo, cutoff):
+    #if the csv already exists, add to it. TODO: consider simply overwritting. Images may be entered twice, or add handling
+    if  os.path.isfile('labeledData.csv'):
+        file = open('labeledData.csv', 'a') #open the csv file and append to it
+        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
+        file.close() #close file. We're done with it
+
+    else: #file does NOT exist already
+        file = open('labeledData.csv', 'w') #create/overwrite the csv file and write to it
+        file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n') #add the column titles
+        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
+
+############################################################################################################
+#this function reads a csv for the name of an image, and the animal present
+#mainDIR: the directory that contains images and a csv
+#returns: a list of tuples in the format: [(image name, animal present), ...]
+def readCSV(mainDIR):
+    filesAndDirectories = os.listdir(mainDIR) #gets a list of all the files and folders in mainDIR
+    csvFile = "" #blank string that stores the name of the csv file of interest
+    #for each file/folder in filesAndDirectories, if it ends in .CSV and is not the labeledData file, set csv to be this file
+    for file in filesAndDirectories:
+        if(file.endswith(".CSV") and file != "LABELEDDATA.CSV"): #ensures we have the correct file
+            csvFile = file
+            break
+
+    file = open(csvFile, 'r')  #this opens the csv for reading
+    columnTitles = file.readline().split(separator = ',') #gets the column titles
+    imageCol = columnTitles.index("FileName") #finds the column no. with the image name
+    animalCol = columnTitles.index("Animal") #finds the column no. with the label of the animal
+
+    imageAndLabel = [] #empty list to store tuples
+
+    #for each row in the file, create a tuple with the information we want
+    for row in file:
+        rowCells = row.split(separator = ',') #turns the row into a parsable list
+        tupleInfo = (rowCells[imageCol], rowCells[animalCol]) #creates the tuple with the image name and label
+        imageAndLabel.append(tupleInfo) #adds the tuple to the list
+
+    return imageAndLabel #returns the list
+
 #gets the date and time from an image's metadata
 #aTuple: a tuple of information; (imageName, prediction, probability, mainDIR)
 #returns: a list of size 2 consisting of the date and the time separately
@@ -76,21 +120,7 @@ def makeCSVHelper(listOfInfo, cutoff):
     
     return finalText
 
-#this function will create csv file with all the labels
-#listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR),...]
-#cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
-#returns: nothing
-def makeCSV(listOfInfo, cutoff):
-    #if the csv already exists, add to it. TODO: consider simply overwritting. Images may be entered twice, or add handling
-    if  os.path.isfile('labeledData.csv'):
-        file = open('labeledData.csv', 'a') #open the csv file and append to it
-        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
-        file.close() #close file. We're done with it
 
-    else: #file does NOT exist already
-        file = open('labeledData.csv', 'w') #create/overwrite the csv file and write to it
-        file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n') #add the column titles
-        file.write(makeCSVHelper(listOfInfo, cutoff)) #add the row from makeCSVHelper
 
 #preprocesses the images further for the AI; copied and modified from program that compiled the model
 #takes in a dataset of images

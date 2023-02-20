@@ -7,7 +7,6 @@ import keras #Provides infrastructure for Neural Network
     #Flatten: Converts 2D arrays into a single, continuous vector
     #Dense: last 3 layers; must be dense so that a valid output can be generated
 import os #used for directory parsing
-import json #used to read json files 
 import numpy as np #here for programmer's sake. Some debugging code that is currently commented out requires numpy. Also, some of the code runs numpy behind the scenes
 import matplotlib.pyplot as plt #for data visualization
 
@@ -165,4 +164,4 @@ plt.ylabel('Loss')
 plt.plot(hist.history['loss'])
 plt.plot(hist.history['val_loss'])
 plt.legend(['Loss', 'Validation loss'])
-plt.show()  
+plt.show()
