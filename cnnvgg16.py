@@ -132,22 +132,11 @@ model.summary() #prints out a summary table
 #runs the model and saves it as a History object
 es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if overfitting occurs
 hist = model.fit(x = trainData[0],         #these numbers need to be experimented with 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> 1b7e613 (CSV is either created or appended to; labels are decoded; in process of writing rows to CSV)
                  steps_per_epoch = 30, 
                  epochs = 15,
                  callbacks = es1,
                  validation_data = trainData[1],
                  validation_steps = 10, 
-
-=======
-                 steps_per_epoch = 10, 
-                 epochs = 5, 
-                 validation_steps = 10, 
->>>>>>> 9266971 (managed to get images to load properly, images DO NOT get processed yet !!!NOT STABLE!!!)
                  verbose = 1)           #should be 2 in final system
 
 model.save('vgg16Run.h5') #saves the model as a readable file
