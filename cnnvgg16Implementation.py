@@ -12,15 +12,15 @@ cnn = load_model('vgg16Run.h5') #loads the saved model
 #listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR, relPathImages),...]
 #cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
 #returns: nothing
-def makeCSV(listOfInfo, count, cutoff):
+def makeCSV(mainDIR, listOfInfo, count, cutoff):
     #if the csv already exists, add to it. TODO: consider simply overwritting. Images may be entered twice, or add handling
-    if  os.path.isfile('labeledData.csv'):
-        file = open('labeledData.csv', 'a') #open the csv file and append to it
+    if  os.path.isfile(mainDIR + '\\labeledData.csv'):
+        file = open(mainDIR + '\\labeledData.csv', 'a') #open the csv file and append to it
         file.write(makeCSVHelper(listOfInfo, count, cutoff)) #add the row from makeCSVHelper
         file.close() #close file. We're done with it
 
     else: #file does NOT exist already
-        file = open('labeledData.csv', 'w') #create/overwrite the csv file and write to it
+        file = open(mainDIR + '\\labeledData.csv', 'w') #create/overwrite the csv file and write to it
         file.write('File,RelativePath,DateTime,DeleteFlag,CameraNumber,DayNight,Animal,Count\n') #add the column titles
         file.write(makeCSVHelper(listOfInfo, count, cutoff)) #add the row from makeCSVHelper
 
