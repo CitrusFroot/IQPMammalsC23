@@ -11,8 +11,12 @@ match choiceTuple[0]:
         predictions = cnn.runModel(choiceTuple[1])
         count = jr.getCount(choiceTuple[1])
         print(count)
-        cnn.makeCSV(predictions, count, CUTOFF)
+        cnn.makeCSV(choiceTuple[1], predictions, count, CUTOFF)
     case 1:
-        cnn.retrain(choiceTuple[1])
+        print("currently not enabled. Sorry!")
+        for i in range(700):
+            beans = True
+
+        #cnn.retrain(choiceTuple[1])
     case _:
         print('no choice made- everything is all good. closing application!')

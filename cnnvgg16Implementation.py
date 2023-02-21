@@ -15,6 +15,7 @@ def makeCSV(mainDIR, listOfInfo, count, cutoff):
     #if the csv already exists, add to it. TODO: consider simply overwritting. Images may be entered twice, or add handling
     if  os.path.isfile(mainDIR + '\\labeledData.csv'):
         file = open(mainDIR + '\\labeledData.csv', 'a') #open the csv file and append to it
+        print("DEBUG:", cutoff)
         file.write(makeCSVHelper(listOfInfo, count, cutoff)) #add the row from makeCSVHelper
         file.close() #close file. We're done with it
 
@@ -77,6 +78,7 @@ def getDateAndTime(aTuple):
 #cutoff: a float number. The probability cutoff for whether or not the prediction should be trusted
 #returns: a string: a row in a CSV
 def makeCSVHelper(listOfInfo, detectionCount, cutoff):
+    print("DEBUG: makeCSVHelper", cutoff)
     finalText = '' #the row that is returned
     #for every tuple in listOfInfo:
     #add the name of the image, the relative path of the image, the DateTime of the image, delete flag, camera number, time of day, animal, and the count to finalText
