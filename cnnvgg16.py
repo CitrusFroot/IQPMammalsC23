@@ -1,13 +1,12 @@
 ##### IMPORT SECTION #####
 import tensorflow as tf
-import keras, os #Provides infrastructure for Neural Network (NN)
-
+import keras #Provides infrastructure for Neural Network
 #The following are used from Keras. They are mentioned here for the programmer's understanding:
     #Conv2D: images are 2D, hence 2D. Tells system to use Convolutional NNs (CNN)
     #MaxPool2D: Max Pooling has been found to be the better option for pooling with image identification
     #Flatten: Converts 2D arrays into a single, continuous vector
     #Dense: last 3 layers; must be dense so that a valid output can be generated
-
+import os #used for directory parsing
 import numpy as np #here for programmer's sake. Some debugging code that is currently commented out requires numpy. Also, some of the code runs numpy behind the scenes
 import matplotlib.pyplot as plt #for data visualization
 
@@ -23,19 +22,19 @@ valSplit = 0.3  #percent of data that is saved for testing
 trainDIR = "E:\All types of images\Training Data/"
 
 # the number of subdirectories within the "Training Data" directory
-numSubdirectories = len(list(os.walk(trainDIR)))
+numSubdirectories = len(list(os.walk(trainDIR))) 
 
 ############################### PREPROCESSING ###############################
 
 #pulls images from directory, labels them, shuffles them, and divides them into testing and training data
 trainData = tf.keras.utils.image_dataset_from_directory(
                                                         directory = trainDIR,
-                                                        labels = 'inferred',                    #The labels are derived from the folder names that have the images
+                                                        labels = 'inferred',                    #The labels are derived from the folder names that have the images  
                                                         color_mode = 'grayscale',               #Importing the images in as grayscale standardizes the mix of grayscale and RGB images
                                                         batch_size = batchSize,                 #sets the batch size to batchSize
                                                         image_size = (imageResX, imageResY),    #resizes the images accordingly
                                                         shuffle = True,                         #default is true; here for programmer's sake
-                                                        validation_split = valSplit,            #sets the validation split to valSplit
+                                                        validation_split = valSplit,            #sets the validation split to valSplit 
                                                         seed = 19121954,                        #seed chosen arbitrarily; birth and death of Alan Turing (my hero)
                                                         subset = 'both')                        #makes trainData a list, where trainData = [training data dataset object, validation data dataset object]
 
@@ -46,19 +45,20 @@ trainData = tf.keras.utils.image_dataset_from_directory(
 def applyFunc(dataset):
      imgList = [] #list of all RGB images
      imgLabels = [] #list of labels assigned to each image
-    
 
      #for every setOfBatches in dataset:
      #convert img to rgb, add it to imgList
      #add label to imgLabels
      print('=========== PREPROCESSING: ===========\n')
-     batchCount = 1 #for debugging purposes
+     batchCount = 1 #for debugging purposes 
      print('========\n', len(dataset), 'batches to process. Beginning ...')
      for setOfBatches in dataset:  #set of batches contains a batch of images and a batch of labels for each image
         for img in setOfBatches[0]: #setOfBatches[0] = batch of images
             img = tf.image.grayscale_to_rgb(img) #converts image to RGB format
-            imgList.append(img) #adds to list
+            imgList.append(img) #adds to list 
 
+            imageNum += 1
+       
         for label in setOfBatches[1]: #setOfBatches[1] = labels
             imgLabels.append(label) #adds to list
 
@@ -77,7 +77,10 @@ trainTData = trainData[0]
 trainVData = trainData[1]
 #Applies the applyFunc to each dataset
 trainTData = trainTData.apply(applyFunc)
+trainTData = trainTData.shuffle(buffer_size = 4025, seed = 19121954) #shuffles the data TODO: find better, more secure way of settinng buffer size
+
 trainVData = trainVData.apply(applyFunc)
+trainVData = trainVData.shuffle(buffer_size = 1724, seed = 19121954) #shuffles data to same seed
 
 trainData = [trainTData, trainVData] #recombines the two datasets
 '''
@@ -111,12 +114,11 @@ VGG.trainable = False #we dont want to train the first 13 layers, just the last 
 
 #we have 3 dense layers (standard CNN framework)
 model = keras.Sequential([VGG,                  
-                         keras.layers.Flatten(),                                                    #converts the model into a 1D vector
+                         keras.layers.Flatten(),                                                    #converts the model into a 1D vector 
                          keras.layers.Dense(units = 1024, activation = 'selu'),                     #this is the best performing structure out of what was tested    
                          keras.layers.Dense(units = 1024, activation = 'relu'),                     #this is the best performing structure out of what was tested
-                         keras.layers.Dense(units = numSubdirectories,   activation = 'softmax')])  #units here must be the same size as the number of possible classifications; each one corresponds to a classification.
+                         keras.layers.Dense(units = numSubdirectories, activation = 'softmax')])    #units here must be the same size as the number of possible classifications; each one corresponds to a classification.
                                                                                                     #activation must be softmax here to convert the outputs to probabilities. SUM(units 1-8) = 1
-
 
 #compile the model
 #optimizer: adagrad (best), rmsprop (mid), adadelta (bad), nadam (mid), ftrl(good), sgd (more stable, horrible values)
