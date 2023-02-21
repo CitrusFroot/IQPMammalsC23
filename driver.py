@@ -1,7 +1,6 @@
 import UI as ui
 import cnnvgg16Implementation as cnn
 import jsonReading as jr
-import numpy as np
 
 CUTOFF = 0.3
 
