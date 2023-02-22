@@ -13,7 +13,6 @@ def getCount(mainDIR):
     for image in data["images"]:
         count = 0 #gets added to counts
         for detection in image["detections"]:
-            print(detection)
             if(detection["conf"] >= .1 and detection["category"] == '1'): #if we are confident in the detection, and the detection is category 1 (animal), do:
                 count += 1 #increase the count
         counts.append(count) #add the final count to counts

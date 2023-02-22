@@ -10,7 +10,6 @@ if(choiceTuple[1] != ""):
         case 0:
             predictions = cnn.runModel(choiceTuple[1])
             count = jr.getCount(choiceTuple[1])
-            print(count)
             cnn.makeCSV(choiceTuple[1], predictions, count, CUTOFF)
         case 1:
             print("currently not enabled. Sorry!")
