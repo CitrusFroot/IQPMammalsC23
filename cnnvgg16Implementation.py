@@ -127,7 +127,10 @@ def makeCSVHelper(listOfInfo, detectionCount, cutoff):
                     label = "Review"
         
         finalText = finalText + label + ','  #adds the prediction to the image
-        finalText = finalText + str(detectionCount[countIndex]) + ",\n" #adds count to entry and ends the entry for the image in the CSV
+        if(len(detectionCount) > 0):
+            finalText = finalText + str(detectionCount[countIndex]) + ",\n" #adds count to entry and ends the entry for the image in the CSV
+        else:
+            finalText = finalText + ",\n"
         countIndex += 1
     return finalText
 
