@@ -15,6 +15,7 @@ def makeCSV(mainDIR, listOfInfo, count, cutoff):
     file = open(mainDIR + '\\labeledData.csv', 'w') #create/overwrite the csv file and write to it
     file.write('File,RelativePath,Animal,Count,\n') #add the column titles
     file.write(makeCSVHelper(listOfInfo, count, cutoff)) #add the row from makeCSVHelper
+    file.close()
 
 ############################################################################################################
 #this function reads a csv for the name of an image, and the animal present
@@ -88,19 +89,40 @@ def makeCSVHelper(listOfInfo, detectionCount, cutoff):
                     else:
                         label = "Review" 
                 case 1:
-                    label = 'Fox' #fox-back
+                    if "empty" in aTuple[4]:   #trust megadetector
+                        label = "Empty"
+                    else:
+                        label = 'Fox' #fox-back
                 case 2:
-                    label = 'Fox' #fox-front
+                    if "empty" in aTuple[4]:   #trust megadetector
+                        label = "Empty"
+                    else:
+                        label = 'Fox' #fox-front
                 case 3:
-                    label = 'Fox' #fox-side
+                    if "empty" in aTuple[4]:   #trust megadetector
+                        label = "Empty"
+                    else:
+                        label = 'Fox' #fox-side
                 case 4:
-                    label = 'Jackal' #jackal-back
+                    if "empty" in aTuple[4]:   #trust megadetector
+                        label = "Empty"
+                    else:
+                        label = 'Jackal' #jackal-back
                 case 5:
-                    label = 'Jackal' #jackal-front
+                    if "empty" in aTuple[4]:   #trust megadetector
+                        label = "Empty"
+                    else:
+                        label = 'Jackal' #jackal-front
                 case 6:
-                    label = 'Jackal' #jackal-side
+                    if "empty" in aTuple[4]:   #trust megadetector
+                        label = "Empty"
+                    else:
+                        label = 'Jackal' #jackal-side
                 case 7:
-                    label = 'Review' #other
+                    if "empty" in aTuple[4]:   #trust megadetector
+                        label = "Empty"
+                    else:
+                        label = 'Review' #other
                 case _:
                     label = "Review"
         
