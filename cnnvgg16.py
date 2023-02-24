@@ -77,10 +77,8 @@ trainTData = trainData[0]
 trainVData = trainData[1]
 #Applies the applyFunc to each dataset
 trainTData = trainTData.apply(applyFunc)
-trainTData = trainTData.shuffle(buffer_size = 4025, seed = 19121954) #shuffles the data TODO: find better, more secure way of settinng buffer size
 
 trainVData = trainVData.apply(applyFunc)
-trainVData = trainVData.shuffle(buffer_size = 1724, seed = 19121954) #shuffles data to same seed
 
 trainData = [trainTData, trainVData] #recombines the two datasets
 '''
