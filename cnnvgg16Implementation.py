@@ -18,6 +18,8 @@ def makeCSV(mainDIR, listOfInfo, count, cutoff):
     file.close()
 
 ############################################################################################################
+'''TODO: for future developers, this function would read the CSV exported from timelapse
+
 #this function reads a csv for the name of an image, and the animal present
 #mainDIR: the directory that contains images and a csv
 #returns: a list of tuples in the format: [(image name, animal present), ...]
@@ -43,8 +45,10 @@ def readCSV(mainDIR):
         tupleInfo = (rowCells[imageCol], rowCells[animalCol]) #creates the tuple with the image name and label
         imageAndLabel.append(tupleInfo) #adds the tuple to the list
 
-    return imageAndLabel #returns the list
+    return imageAndLabel #returns the list'''
 
+'''
+TODO: for future developers, this function would get date and time for the purposes of determining time of day based on season, as well as the season
 #gets the date and time from an image's metadata
 #aTuple: a tuple of information; (imageName, prediction, probability, mainDIR, relPathImages)
 #returns: a list of size 2 consisting of the date and the time separately
@@ -64,7 +68,7 @@ def getDateAndTime(aTuple):
         if(tagname == 'DateTime'): #found a match
             value = metadata.get(tagid) #gets value
             
-    return value.split(' ') #returns a list: [DATE, TIME]
+    return value.split(' ') #returns a list: [DATE, TIME]'''
 
 #takes in a list (listOfInfo) and a cutoff confidence, and returns a row in the CSV file
 #listOfInfo: a list of tuples. = [(imageName, prediction, probability, mainDIR, relPathImages),...]
@@ -80,14 +84,14 @@ def makeCSVHelper(listOfInfo, detectionCount, cutoff):
     for aTuple in listOfInfo:
         finalText = finalText + aTuple[0] + ',' #adds the name of the file and relative path to the string
         finalText = finalText + aTuple[4] + ','   #adds the relative path of the file to the string
-        label = "Review" #what is in the image
+        label = "unknown animal" #what is in the image
         if aTuple[2] >= cutoff: #this means that the AI made a prediction with a suitable confidence
             match aTuple[1]:
                 case 0:
                     if "empty" in aTuple[4]:   #empty if aTuple is confident. Else, save it for review
                         label = "Empty"
                     else:
-                        label = "Review" 
+                        label = "unknown animal" 
                 case 1:
                     if "empty" in aTuple[4]:   #trust megadetector
                         label = "Empty"
@@ -122,9 +126,9 @@ def makeCSVHelper(listOfInfo, detectionCount, cutoff):
                     if "empty" in aTuple[4]:   #trust megadetector
                         label = "Empty"
                     else:
-                        label = 'Review' #other
+                        label = 'unknown animal' #other
                 case _:
-                    label = "Review"
+                    label = "unknown animal"
         
         finalText = finalText + label + ','  #adds the prediction to the image
         if(len(detectionCount) > 0):
